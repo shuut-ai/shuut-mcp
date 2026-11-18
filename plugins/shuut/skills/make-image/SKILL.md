@@ -1,0 +1,25 @@
+---
+name: make-image
+description: Generate images with shuut (GPT Image, Nano Banana, Seedream and other image models) from a text prompt and optional reference images. Use when the user asks to create, draw or render a picture, poster, product shot or illustration.
+---
+
+# Make an image
+
+1. Optional: `models_explore` with kind "image" to choose a model, ratio and resolution. Without `model`, shuut uses its default photo model.
+2. Call `generate_image` with `prompt`, `idempotency_key` and `dry_run: true` to see the price (see the price-first skill), then again without `dry_run`. It returns a `job_id` in about a second. Reference images go in `references` as `file_id`s (see the upload skill).
+3. Call `jobs_wait` with that `job_id` until `done` is true (usually 10-60 s).
+4. Show the user each `outputs[].url`. The URLs expire at `url_expires_at`; `jobs_result` returns fresh ones.
+
+Example arguments for `generate_image`:
+
+```json
+{ "prompt": "A ceramic mug on a linen tablecloth, soft morning light", "ratio": "1:1", "count": 2, "idempotency_key": "mug-1", "dry_run": true }
+```
+
+For several prompts at once, use `generate_image_batch` (see the batch skill). For one-click presets (for example resize-image or scenes-pro), call `get_presets` and `get_preset_instructions`.
+
+## When it fails
+
+- A failed job is refunded in full; read `error.code` and `error.message` from `jobs_get` before changing the prompt.
+- content_blocked or a refused person photo: explain the reason to the user; do not retry the same input with another model to get around it.
+- To edit the result, pass the output `file_id` to `image_edit` (see the edit-photo skill).

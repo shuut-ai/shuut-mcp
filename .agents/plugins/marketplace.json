@@ -1,0 +1,20 @@
+{
+  "name": "shuut-mcp",
+  "interface": {
+    "displayName": "shuut"
+  },
+  "plugins": [
+    {
+      "name": "shuut",
+      "source": {
+        "source": "local",
+        "path": "./plugins/shuut"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

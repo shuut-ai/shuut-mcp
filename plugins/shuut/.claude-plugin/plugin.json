@@ -1,0 +1,26 @@
+{
+  "name": "shuut",
+  "displayName": "shuut",
+  "version": "1.0.0",
+  "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server.",
+  "homepage": "https://shuut.ai/mcp",
+  "repository": "https://github.com/Doers-Corp/shuut-mcp",
+  "license": "MIT",
+  "keywords": [
+    "image generation",
+    "video generation",
+    "image editing",
+    "video editing",
+    "product shots",
+    "ads",
+    "avatars",
+    "voice",
+    "music",
+    "captions"
+  ],
+  "author": {
+    "name": "Doers US, Inc.",
+    "email": "help@shuut.ai",
+    "url": "https://shuut.ai"
+  }
+}

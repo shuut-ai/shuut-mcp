@@ -1,0 +1,54 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "shuut",
+  "version": "1.0.0",
+  "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server.",
+  "homepage": "https://shuut.ai/mcp",
+  "repository": "https://github.com/Doers-Corp/shuut-mcp",
+  "license": "MIT",
+  "keywords": [
+    "image generation",
+    "video generation",
+    "image editing",
+    "video editing",
+    "product shots",
+    "ads",
+    "avatars",
+    "voice",
+    "music",
+    "captions"
+  ],
+  "author": {
+    "name": "Doers US, Inc.",
+    "email": "help@shuut.ai",
+    "url": "https://shuut.ai"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "shuut",
+        "shortDescription": "Images, video and audio",
+        "longDescription": "Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.",
+        "developerName": "Doers US, Inc.",
+        "category": "Productivity",
+        "capabilities": [
+          "Generate images",
+          "Generate videos",
+          "Edit images and videos",
+          "Voice and music"
+        ],
+        "websiteURL": "https://shuut.ai",
+        "privacyPolicyURL": "https://shuut.ai/legal/privacy",
+        "termsOfServiceURL": "https://shuut.ai/legal/terms",
+        "defaultPrompt": [
+          "Show me my shuut credit balance.",
+          "Make a 9:16 product photo of my sneaker on wet asphalt at night.",
+          "Turn this image into a 5-second video."
+        ],
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png"
+      },
+      "onboardingSkill": "./skills/price-first/SKILL.md"
+    }
+  }
+}
