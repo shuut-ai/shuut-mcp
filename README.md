@@ -15,7 +15,7 @@
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
-- **Skills**: 13 step-by-step workflows, also served by the server itself
+- **Skills**: 15 step-by-step workflows, also served by the server itself
 - **Subagents**: 3 helpers (Ad director, QC reviewer, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
 - This repository is generated from the shuut source; edits here are overwritten.
 
@@ -64,6 +64,8 @@ gh skill install shuut-ai/shuut-mcp --all   # GitHub CLI 2.94+
 | `voice-music` | `/shuut:voice-music` | Make voice-overs, multi-speaker dialogue, background music and sound effects with shuut, or score and dub an existing video. Use when the user asks for narration, text to speech, a voice, music, a jingle, a sound effect or captions timing. |
 | `product-ad` | `/shuut:product-ad` | Turn a product photo into ad creative with shuut - clean cut-outs, styled product shots, finished ad images with headline and CTA, ad copy, claim screening, translation, and an animated product video. Use when the user wants ads, product shots or marketing images for a product. |
 | `batch` | `/shuut:batch` | Run many shuut generations or edits at once - several images, videos, audio clips, cut-outs or product shots in one call - and collect all results. Use when the user asks for variations, a set of ads, many clips or bulk work. |
+| `ad-localize` | `/shuut:ad-localize` | Make language versions of a finished shuut Ad studio ad - the script, captions, voice and offer card are translated and spoken in that language - for several languages in one call. Use when the user wants the same ad in other languages or markets. |
+| `ad-resize` | `/shuut:ad-resize` | Make 4:5, 1:1 or 16:9 versions of a shuut Ad studio ad, with captions, offer card and safe areas laid out again for each ratio, reusing the materials already made. Use when the user needs the same ad for feed, square or landscape placements. |
 | `ad-studio` | `/shuut:ad-studio` | Turn a product page or product photos into a fact-checked video ad script with shuut's Ad studio (ad_run_start, ad_run_get, ad_run_change, ad_run_make). Use when the user wants a product video ad script or storyboard from a URL or photos. |
 | `ads-plan` | `/shuut:ads-plan` | Plan a video ad in shuut's Ad studio before making it - read the product analysis (audience, selling points, hook candidates, style) and competitor ads, pick the hook the script opens with, and edit the script in plain words. Use when the user wants to choose the angle or hook of an ad, compare it with competitors, or change the script. |
 | `hook-variants` | `/shuut:hook-variants` | Make 1-4 more versions of a shuut Ad studio ad that open with different hooks, reusing the images and clips already made so only the changed voice lines are paid. Use when the user wants hook or A/B variants of an ad for testing. |
