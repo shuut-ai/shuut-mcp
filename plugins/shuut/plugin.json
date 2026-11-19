@@ -38,8 +38,8 @@
           "Voice and music"
         ],
         "websiteURL": "https://shuut.ai",
-        "privacyPolicyURL": "https://shuut.ai/legal/privacy",
-        "termsOfServiceURL": "https://shuut.ai/legal/terms",
+        "privacyPolicyURL": "https://shuut.ai/legal/privacy?lang=en",
+        "termsOfServiceURL": "https://shuut.ai/legal/terms?lang=en",
         "defaultPrompt": [
           "Show me my shuut credit balance.",
           "Make a 9:16 product photo of my sneaker on wet asphalt at night.",
