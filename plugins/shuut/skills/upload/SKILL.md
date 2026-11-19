@@ -9,7 +9,7 @@ Every tool that takes an image, video or audio input takes a shuut `file_id`. Up
 
 1. Before the first upload or import: the account owner must have accepted shuut's one-time media upload notice in a browser (sign in at https://shuut.ai and upload any file there). Until then `media_upload` and `media_import_url` fail with media_consent_required. You cannot accept it on the user's behalf: ask the user to do it, then retry.
 2. If the file is on the public web: call `media_import_url` with its https URL and use the returned `file_id`. The URL must serve the file itself (not a web page) without a login.
-3. If the file is small (up to 4 MB, for example an image attached to the chat): call `media_upload` with `mime` and `data_base64` (the file as base64). The result is the file itself with its `file_id`; no PUT or `media_confirm` is needed, and sending the same content again within 15 minutes returns the same `file_id`.
+3. In ChatGPT, a file the user attached in this conversation goes to `media_import_url` as `attachments` (that field is shown only there). Elsewhere, if the file is small (up to 4 MB): call `media_upload` with `mime` and `data_base64` (the file as base64). The result is the file itself with its `file_id`; no PUT or `media_confirm` is needed, and sending the same content again within 15 minutes returns the same `file_id`.
 4. If the file is local and larger: call `media_upload` with `mime` and the exact `bytes`, then send the raw bytes to `upload_url` with HTTP PUT and the given Content-Type header, for example:
 
    ```sh

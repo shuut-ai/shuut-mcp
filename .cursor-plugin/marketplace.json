@@ -1,0 +1,17 @@
+{
+  "name": "shuut-mcp",
+  "owner": {
+    "name": "Doers US, Inc.",
+    "email": "help@shuut.ai"
+  },
+  "metadata": {
+    "description": "shuut skills, subagents and MCP server"
+  },
+  "plugins": [
+    {
+      "name": "shuut",
+      "source": "plugins/shuut",
+      "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server."
+    }
+  ]
+}
