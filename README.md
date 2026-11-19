@@ -15,7 +15,7 @@
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
-- **Skills**: 10 step-by-step workflows, also served by the server itself
+- **Skills**: 13 step-by-step workflows, also served by the server itself
 - **Subagents**: 3 helpers (Ad director, QC reviewer, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
 - This repository is generated from the shuut source; edits here are overwritten.
 
@@ -60,11 +60,14 @@ gh skill install shuut-ai/shuut-mcp --all   # GitHub CLI 2.94+
 | `make-image` | `/shuut:make-image` | Generate images with shuut (GPT Image, Nano Banana, Seedream and other image models) from a text prompt and optional reference images. Use when the user asks to create, draw or render a picture, poster, product shot or illustration. |
 | `make-video` | `/shuut:make-video` | Generate videos with shuut (Seedance, Kling, Veo and other video models) from text, a first frame, first and last frames, or reference images, and extend clips. Use when the user asks to create, animate or extend a video. |
 | `edit-photo` | `/shuut:edit-photo` | Edit an existing image with shuut - fill or erase a masked area, cut out the background, expand to a new ratio, relight, change the camera angle, replace text, upscale to 4K, split into layers, retouch skin, make a sheet of alternate shots, or try a garment on a person. Use when the user wants to change a photo they already have. |
-| `edit-video` | `/shuut:edit-video` | Edit an existing video with shuut - swap a product, outfit or background, restyle, upscale to 4K, remove the background, reframe to another aspect ratio, boost fps, dub into another language, add sound or music, re-sync lips, or make it longer. Use when the user wants to change a video they already have. |
+| `edit-video` | `/shuut:edit-video` | Edit an existing video with shuut - swap people, outfits, objects or the background (SWAP), move a video's motion onto new people and places, upscale to 4K, remove the background, reframe to another aspect ratio, boost fps, dub into another language, add sound or music, re-sync lips, or make it longer. Use when the user wants to change a video they already have. |
 | `voice-music` | `/shuut:voice-music` | Make voice-overs, multi-speaker dialogue, background music and sound effects with shuut, or score and dub an existing video. Use when the user asks for narration, text to speech, a voice, music, a jingle, a sound effect or captions timing. |
 | `product-ad` | `/shuut:product-ad` | Turn a product photo into ad creative with shuut - clean cut-outs, styled product shots, finished ad images with headline and CTA, ad copy, claim screening, translation, and an animated product video. Use when the user wants ads, product shots or marketing images for a product. |
 | `batch` | `/shuut:batch` | Run many shuut generations or edits at once - several images, videos, audio clips, cut-outs or product shots in one call - and collect all results. Use when the user asks for variations, a set of ads, many clips or bulk work. |
 | `ad-studio` | `/shuut:ad-studio` | Turn a product page or product photos into a fact-checked video ad script with shuut's Ad studio (ad_run_start, ad_run_get, ad_run_change, ad_run_make). Use when the user wants a product video ad script or storyboard from a URL or photos. |
+| `ads-plan` | `/shuut:ads-plan` | Plan a video ad in shuut's Ad studio before making it - read the product analysis (audience, selling points, hook candidates, style) and competitor ads, pick the hook the script opens with, and edit the script in plain words. Use when the user wants to choose the angle or hook of an ad, compare it with competitors, or change the script. |
+| `hook-variants` | `/shuut:hook-variants` | Make 1-4 more versions of a shuut Ad studio ad that open with different hooks, reusing the images and clips already made so only the changed voice lines are paid. Use when the user wants hook or A/B variants of an ad for testing. |
+| `short-drama` | `/shuut:short-drama` | Turn a script or a one-line idea into a vertical short-drama series with shuut — episodes, recurring characters with character sheets, and clips where the characters speak their lines. Use when the user asks for a short drama, a web drama, a series of episodes or talking story clips. |
 
 ## Subagents
 
