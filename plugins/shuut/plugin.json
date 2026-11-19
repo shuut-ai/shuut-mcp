@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server.",
   "homepage": "https://shuut.ai/mcp",
-  "repository": "https://github.com/Doers-Corp/shuut-mcp",
+  "repository": "https://github.com/shuut-ai/shuut-mcp",
   "license": "MIT",
   "keywords": [
     "image generation",
