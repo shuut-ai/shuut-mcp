@@ -1,6 +1,6 @@
 ---
 name: upload
-description: Bring the user's own image, video or audio file into shuut and get a file_id for other shuut tools. Use when the user gives a local file or a public URL to edit, animate, dub or use as a reference.
+description: Bring the user's own image, video or audio file into shuut and get a file_id for other shuut tools. Use when the user gives a local file or a public URL to use in shuut (to edit, transcribe or pass to another tool as an input).
 ---
 
 # Use the user's own file
