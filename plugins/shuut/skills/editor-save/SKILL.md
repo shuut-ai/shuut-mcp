@@ -8,7 +8,7 @@ description: Save a finished or edited video as a shuut editor project the user 
 `editor_save` turns your edit into a project in the shuut video editor (https://shuut.ai/editor): shots, captions, fonts, voice, music, sound effects, overlays, transitions, color and keyframes become separate editor items the user can change by hand. It is free: no credits, not counted in the user's project limit; fair use is 300 new projects a day (updating a project does not count). It is saved instantly and nothing is rendered. Only `editor_export` renders on the server (slow, see 6).
 
 1. Start uploading every source and font file (`media_upload`) in the background; use the `upload_id`s right away.
-2. Call `editor_save` with `name`, `key` (the final output path), `media`, `fonts`, `spec`, the final render as `reference` and an `idempotency_key`.
+2. Call `editor_save` with `name`, `key` (the final output path), `media`, `fonts`, `spec` (or `ffmpeg` with the commands you ran — see "Made with ffmpeg"), the final render as `reference` and an `idempotency_key`.
 3. Give the user `open_url` in one line.
 4. Next time the same video changes, save again with the same `project_id` (or the same `key`): the project is updated, not duplicated.
 
@@ -20,7 +20,7 @@ description: Save a finished or edited video as a shuut editor project the user 
 - Save only the final video you hand over: not intermediates, previews, test frames or rejected candidates.
 - Exceptions: the user asked you not to save to shuut, or the video is only a draft to check something.
 - Don't narrate the saving (no upload or progress steps). End your answer with one line: the project is in the user's private editor projects, plus `open_url`. Once per project in the conversation.
-- Send the edit, not just the result: the sources as `media` and your edit as `spec` (section 4), the final render as `reference`. `video` alone is only for a video that is not your own edit; if you saved one that way, save again with its `project_id`, the sources and the `spec`.
+- Send the edit, not just the result: the sources as `media` and your edit as `spec` (section 4) or, if you made it with ffmpeg, the commands you ran as `ffmpeg` ("Made with ffmpeg"), the final render as `reference`. `video` alone is only for a video that is not your own edit; if you saved one that way, save again with its `project_id`, the sources and the `spec` or `ffmpeg`.
 
 ## 2. One video = one project (update, don't duplicate)
 
@@ -81,7 +81,11 @@ Example arguments for `editor_save`:
 
 Give every item a stable `id` (`S1`, `C1`, `VO1`, `O1`): the editor names its elements `[S1] …`, and later saves match by id.
 
-### From ffmpeg to the spec
+### Made with ffmpeg: send the commands, not a spec
+
+If you made or edited the video with ffmpeg, don't translate it into a spec by hand: put the commands you actually ran, in order, in `ffmpeg.commands` (every step, including the ones that made intermediate files) and leave `spec` out. Upload the source files, font files (`.ttf`/`.otf`) and the final output first, and map each path exactly as written in the commands to its `media` key in `ffmpeg.inputs` (`{"in.mp4": "src", "fonts/NotoSansKR-Bold.ttf": "font1", "out.mp4": "final"}`). Concat lists, `textfile=` and `.srt`/`.ass` files you did not write in the commands themselves go in `ffmpeg.texts` (`{path: content}`). shuut turns the commands into separate editable captions (with their font files), clips, logos, the blurred or colored background, transitions and ducked music; the final output becomes the reference and `key`. Filters it cannot convert come back in `unconverted` (they stay only in the reference video); mention them if the user will edit there.
+
+### From ffmpeg to the spec (by hand)
 
 Times are seconds or `"1.2s"`, `"36f"`, `"00:00:01:06"`, snapped to frames.
 

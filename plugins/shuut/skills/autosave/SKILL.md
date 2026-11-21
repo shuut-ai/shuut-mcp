@@ -28,7 +28,7 @@ The line to add:
 
 ## Saving with auto-save on
 
-Follow the editor-save skill: upload the clean sources, pass them as `media` and your edit as `spec` (captions, fonts and background stay separate) and the final render as `reference`; pass `video` alone only when the video is not your own edit. Always send `key` (the final output file path) so the same video updates its project.
+Follow the editor-save skill: upload the clean sources, pass them as `media` and your edit as `spec` or the ffmpeg commands you ran as `ffmpeg` (captions, fonts and background stay separate) and the final render as `reference`; pass `video` alone only when the video is not your own edit. Always send `key` (the final output file path) so the same video updates its project.
 
 Example arguments for `editor_save`:
 
