@@ -48,7 +48,8 @@
         "composerIcon": "./assets/icon.png",
         "logo": "./assets/icon.png"
       },
-      "onboardingSkill": "./skills/price-first/SKILL.md"
+      "onboardingSkill": "./skills/price-first/SKILL.md",
+      "hooks": "./hooks/codex.json"
     }
   }
 }

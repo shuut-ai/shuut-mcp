@@ -1,0 +1,19 @@
+{
+  "description": "shuut save reminder: after a shell command writes a video file with ffmpeg or a similar local tool, adds one note: the agent saves it to shuut with editor_save if you turned on auto-save (/shuut:autosave), else offers it once per chat. Reads only the hook input and whether that file is a non-empty regular file (a stat, never an open); sends nothing anywhere and writes no files.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh \"$PLUGIN_ROOT/hooks/save-to-shuut.sh\"",
+            "commandWindows": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand JgAgACgASgBvAGkAbgAtAFAAYQB0AGgAIAAkAGUAbgB2ADoAUABMAFUARwBJAE4AXwBSAE8ATwBUACAAJwBoAG8AbwBrAHMALwBzAGEAdgBlAC0AdABvAC0AcwBoAHUAdQB0AC4AcABzADEAJwApAA==",
+            "async": true,
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

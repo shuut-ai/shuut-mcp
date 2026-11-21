@@ -33,5 +33,5 @@ After the layers job is done:
 
 ## When it fails
 
-- Skin retouch and try-on use a real person's photo: pass `consent: true` only after the user confirms in this conversation that the person gave permission. Photos that appear to show a minor are refused either way. Do not use photos of public figures without their permission (usage policy).
+- Skin retouch and try-on use a real person's photo: pass `consent: true` only after the user confirms in this conversation that the person gave permission. Do not use photos of minors without their legal guardian's permission, or of public figures without their permission (usage policy).
 - A failed job is refunded in full, except error.code outcome_unknown (see the price-first skill).

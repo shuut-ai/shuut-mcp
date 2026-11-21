@@ -1,0 +1,95 @@
+{
+  "description": "shuut save reminder: after a shell command writes a video file with ffmpeg or a similar local tool, adds one note: the agent saves it to shuut with editor_save if you turned on auto-save (/shuut:autosave), else offers it once per chat. Reads only the hook input and whether that file is a non-empty regular file (a stat, never an open); sends nothing anywhere and writes no files.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(*ffmpeg*)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" ffmpeg",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Bash(*remotion*)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" remotion",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Bash(*HandBrakeCLI*)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" handbrakecli",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Bash(*mkvmerge*)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" mkvmerge",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Bash(*MP4Box*)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" mp4box",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "Bash(*melt *)",
+            "command": "/bin/sh \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.sh\" melt",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "PowerShell(*ffmpeg*)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" ffmpeg",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*remotion*)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" remotion",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*HandBrakeCLI*)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" handbrakecli",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*mkvmerge*)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" mkvmerge",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*MP4Box*)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" mp4box",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*melt *)",
+            "shell": "powershell",
+            "command": "& \"${CLAUDE_PLUGIN_ROOT}/hooks/save-to-shuut.ps1\" melt",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

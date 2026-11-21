@@ -1,0 +1,6 @@
+---
+description: Save videos made or edited with ffmpeg or other local video tools to shuut with editor_save
+alwaysApply: true
+---
+
+After you make or edit a video file with ffmpeg or another local video tool (remotion, HandBrakeCLI, mkvmerge, MP4Box, melt), if shuut MCP tools are available and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload; sources as media, the edit as spec, the final render as reference (editor-save skill). Same video re-rendered: the project_id you got (with base_revision), else key: the output file path; new: true only if asked.

@@ -22,5 +22,6 @@
     "name": "Doers US, Inc.",
     "email": "help@shuut.ai",
     "url": "https://shuut.ai"
-  }
+  },
+  "hooks": "./hooks/claude-code.json"
 }

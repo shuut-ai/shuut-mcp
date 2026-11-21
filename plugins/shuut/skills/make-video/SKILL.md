@@ -11,6 +11,7 @@ description: Generate videos with shuut (Seedance, Kling, Veo and other video mo
 4. Call `jobs_wait` repeatedly until `done` is true (1-5 minutes; each call waits up to 50 s).
 5. Share `outputs[].url` for playback and `outputs[].original.url` for the full-resolution source when present; both expire at their stated times. The original object has file_id, url, url_expires_at, mime and, when known, bytes, width, height, seconds and codec.
 6. To continue the clip, call `generate_video` with `extend_video` set to the output `file_id`.
+7. To make one finished video from several clips, voice and music (cuts, captions, logo), pass their `file_id`s to `editor_save`, then `editor_export` for the MP4 (see the promo-video and editor-save skills).
 
 Example arguments for `generate_video`:
 
@@ -23,8 +24,9 @@ For a multi-shot film from a shot list, use `director_create` (`plan_write` with
 Other ways to start a video:
 
 - `director_frame_create` makes a first frame that keeps a product photo exact; `avatar_scene_create` makes first frames of a person presenting a product (then `avatar_video_create`).
+- `avatar_video_create` makes a person talk to an audio file: mode photo, lipsync, stock (a stock presenter, no photo needed) or product_review. `models_explore` kind video rows with `avatar_mode` are the other models for that mode (pass the id as `model`; stock rows list `avatars`).
 - `story_scene_create` makes the frames of a consistent story one by one (pass the previous frame's `file_id` as `previous`; `plan_write` with kind scenes drafts them).
-- `photo_template_create` and `product_app_create` turn photos into a short 9:16 video in two steps: `step` still (the first frame), then `step` video. The server writes the prompts.
+- `photo_template_create` turns a photo into a short 9:16 video in two steps: `step` still (the first frame), then `step` video. The server writes the prompts.
 
 ## When it fails
 
