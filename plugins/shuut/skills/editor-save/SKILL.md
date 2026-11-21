@@ -83,7 +83,7 @@ Give every item a stable `id` (`S1`, `C1`, `VO1`, `O1`): the editor names its el
 
 ### Made with ffmpeg: send the commands, not a spec
 
-If you made or edited the video with ffmpeg, don't translate it into a spec by hand: put the commands you actually ran, in order, in `ffmpeg.commands` (every step, including the ones that made intermediate files) and leave `spec` out. Upload the source files, font files (`.ttf`/`.otf`) and the final output first, and map each path exactly as written in the commands to its `media` key in `ffmpeg.inputs` (`{"in.mp4": "src", "fonts/NotoSansKR-Bold.ttf": "font1", "out.mp4": "final"}`). Concat lists, `textfile=` and `.srt`/`.ass` files you did not write in the commands themselves go in `ffmpeg.texts` (`{path: content}`). shuut turns the commands into separate editable captions (with their font files), clips, logos, the blurred or colored background, transitions and ducked music; the final output becomes the reference and `key`. Filters it cannot convert come back in `unconverted` (they stay only in the reference video); mention them if the user will edit there.
+If you made or edited the video with ffmpeg, don't translate it into a spec by hand: put the commands you actually ran, in order, in `ffmpeg.commands` (every step, including the ones that made intermediate files) and leave `spec` out. Upload the source files, font files (`.ttf`/`.otf`) and the final output first, and map each path exactly as written in the commands to its `media` key in `ffmpeg.inputs` (`{"in.mp4": "src", "fonts/NotoSansKR-Bold.ttf": "font1", "out.mp4": "final"}`). Concat lists, `textfile=` and `.srt`/`.ass` files you did not write in the commands themselves go in `ffmpeg.texts` (`{path: content}`). shuut turns the commands into separate editable captions (with their font files), clips, logos, the blurred or colored background, transitions and ducked music; the final output becomes the reference and `key`. Filters it cannot convert come back in `unconverted` (they stay only in the reference video); mention them if the user will edit there. Image sequences (`frames/%04d.png`, `-pattern_type glob`) are refused: render them to a video file, upload it and use that in the commands.
 
 ### From ffmpeg to the spec (by hand)
 
@@ -140,7 +140,7 @@ Times are seconds or `"1.2s"`, `"36f"`, `"00:00:01:06"`, snapped to frames.
 - `editor_export {project_id, idempotency_key}` renders the project's current revision on the server (H.264 + AAC, captions burned in) into a user file (`export.file_id`, signed `export.url`). If `done` is false, call `editor_task_wait {task_id}`.
 - `height` is the output's vertical size in px, not the '1080p' short side: omit it for the project size (1080×1920 exports at 1920). `height: 1080` on a 9:16 project gives 608×1080 and a warning; pass a lower height only to fit a longer project.
 - The server renders without a GPU: about 1.6 s per frame at 1080×1920. The longest export is about 38 s at 1080×1920 30 fps; `height: 720` allows about 76 s. Longer projects return a too-long error; tell the user to export in the editor (it uses their device).
-- Exports are free but limited per day, one at a time per user. Saving never needs an export.
+- Exports are free but limited per day, one at a time per user (a second export while one runs is refused as busy: wait for the first). Rendering takes minutes, not seconds, even for a short video: tell the user before you start and keep calling `editor_task_wait`. Saving never needs an export.
 
 ## 7. Results
 

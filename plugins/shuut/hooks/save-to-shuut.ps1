@@ -15,13 +15,13 @@ $Only = ''
 if ($args.Count -gt 0) { $Only = ([string]$args[0]).ToLowerInvariant() }
 $Tools = @('ffmpeg remotion handbrakecli mkvmerge mp4box melt'.Split(' ') | Where-Object { -not $Only -or $_ -eq $Only })
 $NoteHead = 'shuut: this command made a video file ('
-$NoteTail = '). If shuut MCP tools are available (maybe after a tool search) and the user''s own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload; sources as media, the edit as spec, the final render as reference (editor-save skill). Same video re-rendered: the project_id you got (with base_revision), else key: the output file path; new: true only if asked.'
+$NoteTail = '). If shuut MCP tools are available (maybe after a tool search) and the user''s own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference (editor-save skill). Always key: the output file path, plus the project_id you got; new: true only if asked.'
 $NoteBg = 'It is still running in the background: save the video after it finishes.'
 $Flags = @{}
 foreach ($f in 'y n an vn sn dn shortest hide_banner nostdin stdin stats nostats re copyts start_at_zero xerror benchmark benchmark_all autorotate noautorotate accurate_seek noaccurate_seek ignore_unknown copy_unknown dump hex report h help version formats codecs encoders decoders filters pix_fmts layouts sample_fmts colors bsfs protocols devices muxers demuxers hwaccels buildconf L debug_ts bitexact psnr vstats qphist print_graphs'.Split(' ')) { $Flags['-' + $f] = $true }
 $VMux = @('mp4', 'mov', 'webm', 'matroska')
 $VExt = @('mp4', 'mov', 'webm', 'mkv')
-$Fails = @('Conversion failed!', 'Error opening output', 'Error opening input', 'Error while opening encoder', 'At least one output file must be specified', 'No such file or directory')
+$Fails = @('Conversion failed!', 'Error opening output', 'Error opening input', 'Error while opening encoder', 'Error initializing output stream', 'Unknown encoder', 'Unrecognized option', 'Invalid data found when processing input', 'Error splitting the argument list', 'At least one output file must be specified', 'No such file or directory')
 
 function Test-Video([string]$w) {
   $m = [regex]::Match($w, '\.([A-Za-z0-9]+)$')
@@ -162,6 +162,8 @@ function Test-Unsafe([string]$p) {
 # words that run the next word as the command (with their options), so the tool can come after them
 $Wrap = @('nice', 'ionice', 'sudo', 'doas', 'env', 'time', 'timeout', 'nohup', 'stdbuf', 'command', 'exec', 'xargs', 'caffeinate', 'npx', 'bunx', 'pnpm', 'yarn', 'npm', 'bun', 'dlx')
 $ValOpt = @('-n', '-s', '-k', '-u', '-g', '-p', '-C', '-o', '-e', '-i')
+# shell keywords before the command word of a simple command (for/while ... do X, if ... then X, { X; }, ! X)
+$Kw = @('do', 'then', 'else', 'elif', 'if', 'while', 'until', '{', '!')
 
 function Add-Nested([string]$x) {
   if ($script:Queue.Count -ge 8) { return }
@@ -169,14 +171,19 @@ function Add-Nested([string]$x) {
   foreach ($tool in $Tools) { if ($lx.Contains($tool)) { $script:Queue.Add($x); return } }
 }
 
+# the same name without leading ./ (so a later -i ./a.mp4 matches an output a.mp4)
+function Get-Nrm([string]$w) { while ($w.StartsWith('./')) { $w = $w.Substring(2) }; return $w }
+
 function Add-Out([string]$w, [bool]$plain) {
+  $script:Ao++
   if ($w -eq '' -or $script:Seen.ContainsKey($w) -or $w -match '[\t\r\n]' -or (Test-Unsafe $w)) { return }
   $script:Seen[$w] = $true
+  $script:Wrote[(Get-Nrm $w)] = $true
   $script:Outs.Add([pscustomobject]@{ W = $w; P = $plain })
 }
 
 function Find-Outputs([string]$tool, $toks, [int]$a, [int]$b) {
-  $expect = $false; $opt = ''; $fmt = ''; $vn = $false
+  $expect = $false; $opt = ''; $fmt = ''; $vn = $false; $a0 = $script:Ao; $inl = New-Object System.Collections.Generic.List[string]
   for ($k = $a; $k -le $b; $k++) {
     $t = $toks[$k]; $w = $t.W
     if ($t.K -eq 'r1') { if (Test-Video $w) { Add-Out $w $t.P }; continue }
@@ -184,7 +191,7 @@ function Find-Outputs([string]$tool, $toks, [int]$a, [int]$b) {
     if ($tool -eq 'ffmpeg') {
       if ($expect) {
         $expect = $false
-        if ($opt -ceq '-i') { $fmt = ''; $vn = $false }
+        if ($opt -ceq '-i') { $fmt = ''; $vn = $false; $nw = Get-Nrm $w; if ($script:Wrote.ContainsKey($nw)) { $inl.Add($nw) } }
         elseif ($opt -ceq '-f') { $fmt = $w.ToLowerInvariant() }
         elseif ($w -notmatch '=' -and (Test-Video $w)) { Add-Out $w $t.P }
         continue
@@ -209,6 +216,9 @@ function Find-Outputs([string]$tool, $toks, [int]$a, [int]$b) {
     if ($tool -eq 'melt' -and $lw -match '^(avformat:|target=)') { $v = $w.Substring($Matches[1].Length); if (Test-Video $v) { Add-Out $v $t.P }; continue }
     if (($tool -eq 'remotion' -or $tool -eq 'mp4box') -and $k -gt $a -and $toks[$k - 1].W -notmatch '^-' -and (Test-Video $w)) { Add-Out $w $t.P }
   }
+  # the inputs of a command that writes a video are intermediate files when an earlier command wrote them; a command that
+  # only checks a video (-f null -, a still frame) writes no video, so its input stays the final video
+  if ($script:Ao -gt $a0) { foreach ($x in $inl) { $script:Read[$x] = $true } }
 }
 
 function Get-ShellKind([string]$w) {
@@ -236,6 +246,7 @@ function Search-Segment($toks, [int]$a, [int]$b) {
     if ($toks[$k].K -ne 'w') { continue }
     if ($vo) { $vo = $false; continue }
     if ($w -match '^[A-Za-z_][A-Za-z0-9_]*=') { continue }
+    if ($Kw -ccontains $w) { continue }
     $bw = ($w.ToLowerInvariant() -replace '^.*[/\\]', '') -replace '\.exe$', ''
     if ($Wrap -contains $bw) { $wr = $true; continue }
     if ($wr -and $w.StartsWith('-')) { $vo = ($ValOpt -ccontains $w); continue }
@@ -329,6 +340,9 @@ try {
   $script:Cwd = [string]$ev.cwd
   $script:Cd = $false
   $script:Seen = @{}
+  $script:Wrote = @{}
+  $script:Read = @{}
+  $script:Ao = 0
   $script:Outs = New-Object System.Collections.Generic.List[object]
   $script:Queue = New-Object System.Collections.Generic.List[string]
   $bg = ($ev.tool_input.run_in_background -eq $true)
@@ -351,9 +365,11 @@ try {
     foreach ($m in $Fails) { if ($text.Contains($m)) { exit 0 } }
   }
   $kept = New-Object System.Collections.Generic.List[string]
-  foreach ($o in $script:Outs) { if ($bg -or (Test-Exists $o.W $o.P)) { $kept.Add($o.W) } }
+  # an output a later command of the same call reads with -i is an intermediate file, not the video to save
+  foreach ($o in $script:Outs) { if ($script:Read.ContainsKey((Get-Nrm $o.W))) { continue }; if ($bg -or (Test-Exists $o.W $o.P)) { $kept.Add($o.W) } }
   if ($kept.Count -eq 0) { exit 0 }
-  $list = (@($kept | Select-Object -First 3) -join ', ')
+  # a file name with a shell variable (out$i.mp4 - a loop's outputs) stands for the files it makes, not one file
+  $list = (@($kept | Select-Object -First 3 | ForEach-Object { if (($_ -replace '^.*[/\\]', '').Contains('$')) { $_ + ' (the files it makes)' } else { $_ } }) -join ', ')
   if ($kept.Count -gt 3) { $list += ' and ' + ($kept.Count - 3) + ' more' }
   $note = $NoteHead + $list + $NoteTail
   if ($bg) { $note += ' ' + $NoteBg }

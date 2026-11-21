@@ -15,7 +15,7 @@
 # Work is linear in the input: the JSON is split on its quotes once, and the command is read through a small window.
 
 BEGIN {
-	if (mode == "emit") { RS = "\n"; NOTE_HEAD = "shuut: this command made a video file ("; NOTE_TAIL = "). If shuut MCP tools are available (maybe after a tool search) and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload; sources as media, the edit as spec, the final render as reference (editor-save skill). Same video re-rendered: the project_id you got (with base_revision), else key: the output file path; new: true only if asked."; NOTE_BG = "It is still running in the background: save the video after it finishes." }
+	if (mode == "emit") { RS = "\n"; NOTE_HEAD = "shuut: this command made a video file ("; NOTE_TAIL = "). If shuut MCP tools are available (maybe after a tool search) and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference (editor-save skill). Always key: the output file path, plus the project_id you got; new: true only if asked."; NOTE_BG = "It is still running in the background: save the video after it finishes." }
 	else RS = "\001"
 	n = split("ffmpeg remotion handbrakecli mkvmerge mp4box melt", tl, " ")
 	for (i = 1; i <= n; i++) if (only == "" || tl[i] == tolower(only)) TOOL[tl[i]] = 1
@@ -26,17 +26,21 @@ BEGIN {
 	for (i = 1; i <= n; i++) VMUX[tl[i]] = 1
 	n = split("mp4 mov webm mkv", tl, " ")
 	for (i = 1; i <= n; i++) VEXT[tl[i]] = 1
-	NFAIL = split("Conversion failed!|Error opening output|Error opening input|Error while opening encoder|At least one output file must be specified|No such file or directory", FAIL, "|")
+	NFAIL = split("Conversion failed!|Error opening output|Error opening input|Error while opening encoder|Error initializing output stream|Unknown encoder|Unrecognized option|Invalid data found when processing input|Error splitting the argument list|At least one output file must be specified|No such file or directory", FAIL, "|")
 	# words that run the next word as the command (with their options), so the tool can come after them
 	n = split("nice ionice sudo doas env time timeout nohup stdbuf command exec xargs caffeinate npx bunx pnpm yarn npm bun dlx", tl, " ")
 	for (i = 1; i <= n; i++) WRAP[tl[i]] = 1
 	n = split("-n -s -k -u -g -p -C -o -e -i", tl, " ")
 	for (i = 1; i <= n; i++) VALOPT[tl[i]] = 1
+	# shell keywords before the command word of a simple command (for/while ... do X, if ... then X, { X; }, ! X)
+	n = split("do then else elif if while until { !", tl, " ")
+	for (i = 1; i <= n; i++) KW[tl[i]] = 1
 }
 
 mode == "emit" {
+	# a file name with a shell variable (out$i.mp4 - a loop's outputs) stands for the files it makes, not one file
 	if ($0 == "B") EBG = 1
-	else if (substr($0, 1, 1) == "N") { NN++; if (NN <= 3) LIST = LIST (NN > 1 ? ", " : "") substr($0, 2) }
+	else if (substr($0, 1, 1) == "N") { NN++; nm = substr($0, 2); fb = nm; sub(/.*\//, "", fb); if (index(fb, "$")) nm = nm " (the files it makes)"; if (NN <= 3) LIST = LIST (NN > 1 ? ", " : "") nm }
 	next
 }
 
@@ -79,8 +83,11 @@ END {
 		r = tail(TA[k], TB[k], 16384)
 		for (i = 1; i <= NFAIL; i++) if (index(r, FAIL[i])) exit 0
 	}
+	# an output a later command of the same call reads with -i is an intermediate file, not the video to save
+	for (i = 1; i <= NO; i++) { nm = OUTL[i]; sub(/^[^\t]*\t/, "", nm); if (!(nrm(nm) in READ)) NK++ }
+	if (NK == 0) exit 0
 	if (BG) print "B"
-	for (i = 1; i <= NO; i++) print OUTL[i]
+	for (i = 1; i <= NO; i++) { nm = OUTL[i]; sub(/^[^\t]*\t/, "", nm); if (!(nrm(nm) in READ)) print OUTL[i] }
 	exit 0
 }
 
@@ -454,6 +461,7 @@ function segment(a, b,   k, j, w, lw, tool, sh, wr, vo) {
 		w = TW[k]
 		if (vo) { vo = 0; continue }
 		if (w ~ /^[A-Za-z_][A-Za-z0-9_]*=/) continue
+		if (w in KW) continue
 		if (base(w) in WRAP) { wr = 1; continue }
 		if (wr && w ~ /^-/) { vo = (w in VALOPT); continue }
 		if (wr && w ~ /^[0-9][0-9.]*[smhd]?$/) continue
@@ -540,8 +548,9 @@ function unsafe(p) {
 
 # one output file: "C<path to stat><TAB><name>", or "U<TAB><name>" when it cannot be checked; risky paths are dropped
 function addout(w, plain,   q) {
+	AO++
 	if (w == "" || (w in SEEN) || w ~ /[\t\n\r]/ || unsafe(w)) return
-	SEEN[w] = 1
+	SEEN[w] = 1; WROTE[nrm(w)] = 1
 	if (BG || !plain || index(w, "%")) { OUTL[++NO] = "U\t" w; return }
 	q = w
 	if (substr(q, 1, 2) == "~/") {
@@ -555,8 +564,14 @@ function addout(w, plain,   q) {
 	OUTL[++NO] = "C" q "\t" w
 }
 
-function outputs(tool, a, b,   k, w, lw, kind, expect, opt, fmt, vn, bs) {
-	expect = 0; fmt = ""; vn = 0
+# the same name without leading ./ (so a later -i ./a.mp4 matches an output a.mp4)
+function nrm(w) {
+	while (substr(w, 1, 2) == "./") w = substr(w, 3)
+	return w
+}
+
+function outputs(tool, a, b,   k, w, lw, kind, expect, opt, fmt, vn, bs, a0, ni, j) {
+	expect = 0; fmt = ""; vn = 0; a0 = AO; ni = 0
 	for (k = a; k <= b; k++) {
 		w = TW[k]; kind = TK[k]
 		if (kind == "r1") { if (isvid(w)) addout(w, TP[k]); continue }
@@ -564,7 +579,7 @@ function outputs(tool, a, b,   k, w, lw, kind, expect, opt, fmt, vn, bs) {
 		if (tool == "ffmpeg") {
 			if (expect) {
 				expect = 0
-				if (opt == "-i") { fmt = ""; vn = 0 }
+				if (opt == "-i") { fmt = ""; vn = 0; if (nrm(w) in WROTE) INL[++ni] = nrm(w) }
 				else if (opt == "-f") fmt = tolower(w)
 				else if (w !~ /=/ && isvid(w)) addout(w, TP[k])
 				continue
@@ -589,4 +604,7 @@ function outputs(tool, a, b,   k, w, lw, kind, expect, opt, fmt, vn, bs) {
 		if (tool == "melt" && lw ~ /^(avformat:|target=)/) { w = substr(w, (lw ~ /^avformat:/) ? 10 : 8); if (isvid(w)) addout(w, TP[k]); continue }
 		if ((tool == "remotion" || tool == "mp4box") && k > a && TW[k - 1] !~ /^-/ && isvid(w)) addout(w, TP[k])
 	}
+	# the inputs of a command that writes a video are intermediate files when an earlier command wrote them; a command that
+	# only checks a video (-f null -, a still frame) writes no video, so its input stays the final video
+	if (AO > a0) for (j = 1; j <= ni; j++) READ[INL[j]] = 1
 }

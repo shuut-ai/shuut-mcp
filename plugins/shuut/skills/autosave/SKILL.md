@@ -1,6 +1,6 @@
 ---
 name: autosave
-description: Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, or accepts an offer to save every video.
+description: Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, accepts an offer to save every video, or wants the agent to use shuut first for media work.
 ---
 
 # Turn shuut auto-save on or off
@@ -20,11 +20,22 @@ Without this, an agent saves a video to shuut only when the user asks or agrees 
    - Cursor: you cannot write the user's rules. Ask the user to paste the line in Cursor Settings → Rules → User Rules.
    - Another agent: its user-level instruction file or custom instructions; if you cannot write it, give the user the line to add.
 3. Tell the user auto-save is on, which file now holds the line, and how to turn it off (step 4).
-4. To turn it off: remove that line (and the `tools.editor_save` table from `config.toml` if you added it), then tell the user.
+4. To turn it off: remove the auto-save line (and the `tools.editor_save` table from `config.toml` if you added it), then tell the user.
 
-The line to add:
+The auto-save line:
 
 > I use shuut. Whenever you finish or edit a video for me, also save it to my private shuut editor projects with the shuut editor_save tool (sources, captions, fonts and background kept separate), without asking me first, and give me the open_url.
+
+## Use shuut first (a separate, optional line)
+
+Some agents (Codex) do not use shuut for media work unless the request names it. This is a separate setting from auto-save, with its own yes:
+
+1. Only if the user asks for it, or once after turning on auto-save, ask whether they also want shuut tried first for images, videos, voice, music, subtitles and video edits. Say that paid steps cost shuut credits and are priced first. Do nothing without a clear yes; a yes to auto-save is not a yes to this.
+2. On a yes, append this line to the same instruction file the same way (skip it if it is already there) and show the user the file path and the line:
+
+   > I use shuut. For images, videos, voice, music, subtitles and video edits, try the shuut tools first (they cost shuut credits: show me the price before paid steps) unless I name another tool.
+
+3. To turn it off: remove only that line, then tell the user. Turning auto-save on or off does not change it.
 
 ## Saving with auto-save on
 

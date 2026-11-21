@@ -40,9 +40,27 @@ Image generation, video generation and image/video editing with GPT Image, Nano 
 **Server only** (terminal)
 
 ```sh
-claude mcp add --transport http shuut https://shuut.ai/mcp
+claude mcp add --transport http --scope user shuut https://shuut.ai/mcp
 codex mcp add shuut --url https://shuut.ai/mcp
 ```
+
+**Codex notes**
+
+- Uploading a local file runs `curl` from the shell. Codex's default `workspace-write` sandbox has no network, so that curl fails with `Could not resolve host`: approve running it outside the sandbox when Codex asks, or turn network on in `~/.codex/config.toml`:
+
+  ```toml
+  [sandbox_workspace_write]
+  network_access = true
+  ```
+
+- Codex shortens a tool's input schema above 5,000 bytes by dropping its field descriptions. To keep them, raise the limit for shuut in the same file (under the `[mcp_servers.shuut]` table that `codex mcp add` wrote):
+
+  ```toml
+  [mcp_servers.shuut]
+  tool_input_schema_max_bytes = 8000
+  ```
+
+**VS Code and Cursor**: shuut has about 68 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
 
 **Skills only** (any agent that reads Agent Skills; add the server above for the tools)
 
@@ -64,7 +82,7 @@ The agent follows the `promo-video` skill: `media_upload` for local files, `gene
 | Skill | Command | When it is used |
 |---|---|---|
 | `price-first` | `/shuut:price-first` | Check the exact shuut price before spending credits, then create. Use before any paid shuut tool (images, videos, audio, edits, batches) or when the user asks what something costs, how many credits they have, or why a job was refunded. |
-| `upload` | `/shuut:upload` | Bring the user's own image, video or audio file into shuut and get a file_id for other shuut tools. Use when the user gives a local file or a public URL to use in shuut (to edit, transcribe or pass to another tool as an input). |
+| `upload` | `/shuut:upload` | Bring the user's own image, video or audio file (or a font for editor captions) into shuut and get a file_id for other shuut tools. Use when the user gives a local file or a public URL to use in shuut (to edit, transcribe or pass to another tool as an input). |
 | `make-image` | `/shuut:make-image` | Generate images with shuut (GPT Image, Nano Banana, Seedream and other image models) from a text prompt and optional reference images. Use when the user asks to create, draw or render a picture, poster, product shot or illustration. |
 | `make-video` | `/shuut:make-video` | Generate videos with shuut (Seedance, Kling, Veo and other video models) from text, a first frame, first and last frames, or reference images, and extend clips. Use when the user asks to create, animate or extend a video. |
 | `edit-photo` | `/shuut:edit-photo` | Edit an existing image with shuut - fill or erase a masked area, cut out the background, expand to a new ratio, relight, change the camera angle, replace text, upscale to 4K, split into layers, retouch skin, make a sheet of alternate shots, or try a garment on a person. Use when the user wants to change a photo they already have. |
@@ -72,7 +90,7 @@ The agent follows the `promo-video` skill: `media_upload` for local files, `gene
 | `voice-music` | `/shuut:voice-music` | Make voice-overs, multi-speaker dialogue, background music and sound effects with shuut, clone the user's own voice, or score and dub an existing video. Use when the user asks for narration, text to speech, a voice, their own voice, music, a jingle, a sound effect or captions timing. |
 | `product-ad` | `/shuut:product-ad` | Turn a product photo into ad creative with shuut - clean cut-outs, styled product shots, finished ad images with headline and CTA, ad copy, claim screening, translation, and an animated product video. Use when the user wants ads, product shots or marketing images for a product. |
 | `batch` | `/shuut:batch` | Run many shuut generations or edits at once - several images, videos, audio clips, cut-outs or product shots in one call - and collect all results. Use when the user asks for variations, a set of ads, many clips or bulk work. |
-| `autosave` | `/shuut:autosave` | Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, or accepts an offer to save every video. |
+| `autosave` | `/shuut:autosave` | Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, accepts an offer to save every video, or wants the agent to use shuut first for media work. |
 | `editor-save` | `/shuut:editor-save` | Save a finished or edited video as a shuut editor project the user can open and keep editing, with every source, caption, font and background kept separate, and update the same project when the video changes. Use whenever you produced or edited a video, including with ffmpeg or other local tools, and when asked for an editable project, an MP4 export or changes to a saved edit. |
 | `promo-video` | `/shuut:promo-video` | Make a whole promo, ad, product, launch or explainer video with shuut - script, voice-over or the user's own cloned voice, a talking avatar, generated scenes and screen captures, music and sound effects, cuts, transitions, big captions, logo, blurred background and covering burned-in text - then save it as an editable shuut project and export the final MP4. Use when the user asks for a promo video, an ad video or a reel made with shuut, or for saving or finishing a video edit in shuut, including one made or edited with other tools. |
 | `short-drama` | `/shuut:short-drama` | Turn a script or a one-line idea into a vertical short-drama series with shuut — episodes, recurring characters with character sheets, and clips where the characters speak their lines. Use when the user asks for a short drama, a web drama, a series of episodes or talking story clips. |
@@ -99,7 +117,7 @@ A video your agent renders with ffmpeg or another local tool is hard to fine-tun
 
 - **What the agent is told**: when a shell command wrote a video file (.mp4, .mov, .webm, .mkv) with ffmpeg, remotion, HandBrakeCLI, mkvmerge, MP4Box or melt, the agent gets this note in its context (not shown in the chat). If you turned on auto-save, it asks the agent to upload the source files and the final video to your shuut account with `media_upload` and save them with `editor_save` **without asking you first**; otherwise to offer it once (before the first upload from an app, you accept a one-time upload notice in your browser):
 
-  > shuut: this command made a video file (<files written>). If shuut MCP tools are available (maybe after a tool search) and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload; sources as media, the edit as spec, the final render as reference (editor-save skill). Same video re-rendered: the project_id you got (with base_revision), else key: the output file path; new: true only if asked.
+  > shuut: this command made a video file (<files written>). If shuut MCP tools are available (maybe after a tool search) and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference (editor-save skill). Always key: the output file path, plus the project_id you got; new: true only if asked.
 
   ffprobe, playback, audio-only output, images, failed commands and video tool names that are not the command being run (an argument of `echo` or `printf`, a commit message, a here-document) get no note.
 - **Claude Code and Codex**: a `PostToolUse` hook on shell commands (`hooks/`). It reads only the hook input on its standard input (the command text, and the end of the command's output to spot a failed render) and asks the file system whether each output file is a non-empty regular file (a stat: it never opens or reads a file, skips known network and device paths, such as `//host/…`, `\\host\…`, `/net/…` or `/dev/…` also when written with `.` or `..`, and does not follow links into them). It sends nothing off your machine, writes no files and always exits 0, so it never blocks or fails a command. It runs `/bin/sh` and the standard `awk` on macOS, Linux and Git Bash, and the system PowerShell (`C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe` for Codex) on Windows. Claude Code starts it mostly for commands that mention one of those tools. Codex runs it in the background after every shell command and asks you to review and trust it in `/hooks` before it first runs (it needs a POSIX `/bin/sh`; Windows execution policies that allow only signed scripts block it).

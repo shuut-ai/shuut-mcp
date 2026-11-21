@@ -8,9 +8,9 @@ description: Check the exact shuut price before spending credits, then create. U
 shuut bills the signed-in user's credits (100 credits = US$1). Every paid tool takes `dry_run`, `idempotency_key` and `max_spend_credits`.
 
 1. Call `balance` to see the credits, expiring lots, whether the account can create, and its concurrent job limit.
-2. Call the create tool you plan to use with `dry_run: true` and an `idempotency_key`. It returns `cost_credits`, `balance_credits` and `sufficient_balance`; nothing runs and nothing is charged. `quote.seconds_adjusted` is true when the length was fitted to what the model or account allows.
-3. Tell the user the price. When they agree, call the same tool again without `dry_run` (a new or the same `idempotency_key` both work). Add `max_spend_credits` to refuse a higher price.
-4. Keep the `idempotency_key` when you retry the same request: the same key and the same input return the same job instead of charging twice.
+2. Call the create tool you plan to use with `dry_run: true` and an `idempotency_key`. It returns `cost_credits`, `balance_credits` and `sufficient_balance`; nothing runs and nothing is charged. `quote.seconds_adjusted` is true when the length was fitted to what the model or account allows. `job_slots_free` 0 means the real call would fail with too_many_jobs until a running job ends.
+3. Tell the user the price. When they agree, call the same tool again without `dry_run`, with `max_spend_credits` set to the dry_run `cost_credits` so a higher price is refused (nothing is charged); a new or the same `idempotency_key` both work. The real call prices the job again, so without that cap the user could pay more than they agreed to.
+4. Keep the `idempotency_key` when you retry the same request: the same key and the same input return the same job instead of charging twice. If that job failed or was canceled (`new_key_required: true`), the same key only returns it again: use a new `idempotency_key` to try again (dry_run first). In a batch, resend only the failed items (`new_key_indices`) as a new call with a new key; the others are already made, and sending them again with a new key charges them again.
 
 Example arguments for `generate_image`:
 
@@ -20,7 +20,7 @@ Example arguments for `generate_image`:
 
 ## Refunds
 
-- A failed or cancelled job is refunded in full (see `refunded_credits`).
+- A failed or cancelled job is refunded in full (see `refunded_credits`). To retry a failed job, call the create tool again with a new `idempotency_key`.
 - The exception is error.code outcome_unknown: the provider's outcome is still being checked, so the unconfirmed part stays charged until it is confirmed (refunded_credits shows any part already returned; a result may still arrive, or the rest is refunded then). Check the same job_id again later with `jobs_get`; do not submit a replacement job.
 - `jobs_cancel` cancels a job that has not started running and refunds it in full.
 

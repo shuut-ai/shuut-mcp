@@ -5,7 +5,7 @@ description: Generate images with shuut (GPT Image, Nano Banana, Seedream and ot
 
 # Make an image
 
-1. Optional: `models_explore` with kind "image" to choose a model, ratio and resolution. Without `model`, shuut uses its default photo model.
+1. Optional: `models_explore` with kind "image" lists the image models (a short summary row each); for one model's ratios and resolutions, call it again with model set to that exact id, or with `fields` "full". Without `model`, shuut uses its default photo model.
 2. Call `generate_image` with `prompt`, `idempotency_key` and `dry_run: true` to see the price (see the price-first skill), then again without `dry_run`. It returns a `job_id` in about a second. Reference images go in `references` as `file_id`s (see the upload skill).
 3. Call `jobs_wait` with that `job_id` until `done` is true (usually 10-60 s).
 4. Show the user each `outputs[].url`. The URLs expire at `url_expires_at`; `jobs_result` returns fresh ones.
