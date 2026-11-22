@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "shuut",
-      "source": "plugins/shuut",
+      "source": "./",
       "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server."
     }
   ]

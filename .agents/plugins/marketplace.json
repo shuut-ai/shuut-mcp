@@ -8,7 +8,7 @@
       "name": "shuut",
       "source": {
         "source": "local",
-        "path": "./plugins/shuut"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

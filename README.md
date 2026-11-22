@@ -9,42 +9,93 @@
 </p>
 
 <p align="center">
-  <a href="https://shuut.ai">shuut.ai</a> · <a href="https://shuut.ai/mcp">Setup guide</a> · <a href="#install">Install</a> · <a href="#example-one-video-start-to-finish">Example</a> · <a href="#skills">Skills</a> · <a href="#subagents">Subagents</a>
+  <a href="https://shuut.ai">shuut.ai</a> · <a href="https://shuut.ai/mcp">Setup guide</a> · <a href="#install">Install</a> · <a href="#versions-and-updates">Updates</a> · <a href="#example-one-video-start-to-finish">Example</a> · <a href="#skills">Skills</a> · <a href="#subagents">Subagents</a>
 </p>
 
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
-- **Skills**: 14 step-by-step workflows, also served by the server itself
+- **Skills**: 14 step-by-step workflows (`skills/`), also served by the server itself
 - **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
+- **One folder for every host**: this repository's root is the plugin (Claude Code, GitHub Copilot CLI, VS Code agent plugins, Cursor, Gemini CLI, Codex)
 - This repository is generated from the shuut source; edits here are overwritten.
 
 ## Install
 
-**One click**
+Pick one way per agent. A plugin brings the server, the skills and (where the host supports them) the subagents in one install; sign in with your shuut account the first time a shuut tool runs.
+
+**One click** (server only)
 
 <a href="https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=shuut&connectorUrl=https%3A%2F%2Fshuut.ai%2Fmcp"><img alt="Add to Claude" src="https://img.shields.io/badge/Add_to_Claude-0b0b0c?style=for-the-badge&logo=claude&logoColor=d7ff3a"></a>
 <a href="https://cursor.com/install-mcp?name=shuut&config=eyJ1cmwiOiJodHRwczovL3NodXV0LmFpL21jcCJ9"><img alt="Add to Cursor" src="https://img.shields.io/badge/Add_to_Cursor-0b0b0c?style=for-the-badge&logo=cursor&logoColor=d7ff3a"></a>
 <a href="https://vscode.dev/redirect/mcp/install?name=shuut&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fshuut.ai%2Fmcp%22%7D"><img alt="Install in VS Code" src="https://img.shields.io/badge/Install_in_VS_Code-0b0b0c?style=for-the-badge"></a>
 
-**Plugin** (skills and the server together)
+### Claude Code
 
-| Where | How |
-|---|---|
-| Claude Code | `/plugin marketplace add shuut-ai/shuut-mcp` then `/plugin install shuut@shuut-mcp` |
-| claude.ai / Claude Desktop / Cowork | Customize → Plugins → Add marketplace → `shuut-ai/shuut-mcp`, install **shuut**, then connect shuut on the plugin's Connectors tab |
-| Codex / ChatGPT desktop | `codex plugin marketplace add shuut-ai/shuut-mcp`, then install **shuut** from the Plugins Directory |
-| Cursor (Teams and Enterprise plans) | Dashboard → Plugins & MCPs → Team Marketplaces → Add Marketplace → Import from Repo → `https://github.com/shuut-ai/shuut-mcp`, then install **shuut** |
-| Any MCP client | Add the server `https://shuut.ai/mcp`; the same skills are served by the server itself (prompts, `skill://shuut/<name>/SKILL.md` resources, and the `get_workflow_instructions` tool) |
+```sh
+claude plugin marketplace add shuut-ai/shuut-mcp
+claude plugin install shuut@shuut-mcp
+```
 
-**Server only** (terminal)
+Or inside Claude Code: `/plugin marketplace add shuut-ai/shuut-mcp` then `/plugin install shuut@shuut-mcp`. Skills run as `/shuut:<skill>`. To get new versions automatically, run `/plugin` in Claude Code's terminal UI, open **Marketplaces** → **shuut-mcp** and choose **Enable auto-update** (it is off by default for marketplaces you add).
+
+### GitHub Copilot CLI
+
+```sh
+copilot plugin marketplace add shuut-ai/shuut-mcp
+copilot plugin install shuut@shuut-mcp
+```
+
+Start a new session; `/skills list` shows the shuut skills.
+
+### VS Code (agent plugins)
+
+Turn on agent plugins in VS Code settings, add `shuut-ai/shuut-mcp` as a plugin marketplace (Extensions view, search `@agentPlugins`), then install **shuut**.
+
+### Cursor
+
+- **Team marketplace** (Teams and Enterprise plans): Dashboard → Plugins & MCPs → Team Marketplaces → Add Marketplace → Import from Repo → `https://github.com/shuut-ai/shuut-mcp`, then install **shuut**.
+- **Local plugin**: put this repository in `~/.cursor/plugins/local/shuut` (for example `git clone https://github.com/shuut-ai/shuut-mcp ~/.cursor/plugins/local/shuut`) and reload Cursor. Your organization's policy may turn local plugins off.
+
+### Gemini CLI
+
+```sh
+gemini extensions install https://github.com/shuut-ai/shuut-mcp --auto-update
+```
+
+Restart Gemini CLI and run `/mcp auth shuut` to sign in. The extension adds the shuut server, the skills in `skills/` and a short `GEMINI.md` note.
+
+### Codex and ChatGPT desktop
+
+`codex plugin marketplace add shuut-ai/shuut-mcp`, then install **shuut** from the Plugins Directory.
+
+### OpenCode and other agents
+
+Install the skills with the skills CLI, then add the server `https://shuut.ai/mcp` (Streamable HTTP, OAuth) in that agent's MCP settings:
+
+```sh
+npx skills add shuut-ai/shuut-mcp
+gh skill install shuut-ai/shuut-mcp --all   # GitHub CLI 2.94+
+```
+
+### claude.ai, Claude Desktop, Cowork and ChatGPT
+
+- **claude.ai / Claude Desktop / Cowork**: Customize → Plugins → Add marketplace → `shuut-ai/shuut-mcp`, install **shuut**, then connect shuut on the plugin's Connectors tab. You can also upload `shuut-plugin.zip` from the [latest release](https://github.com/shuut-ai/shuut-mcp/releases) (Customize → Plugins → Upload plugin).
+- **ChatGPT**: follow the ChatGPT tab of the [setup guide](https://shuut.ai/mcp?tab=chatgpt).
+
+### Any MCP client
+
+Add the server `https://shuut.ai/mcp`; the same skills are served by the server itself (prompts, `skill://shuut/<name>/SKILL.md` resources, and the `get_workflow_instructions` tool). From a terminal:
 
 ```sh
 claude mcp add --transport http --scope user shuut https://shuut.ai/mcp
 codex mcp add shuut --url https://shuut.ai/mcp
+gemini mcp add --transport http --scope user shuut https://shuut.ai/mcp
 ```
 
-**Codex notes**
+### Notes
+
+**Codex**
 
 - Uploading a local file runs `curl` from the shell. Codex's default `workspace-write` sandbox has no network, so that curl fails with `Could not resolve host`: approve running it outside the sandbox when Codex asks, or turn network on in `~/.codex/config.toml`:
 
@@ -60,14 +111,7 @@ codex mcp add shuut --url https://shuut.ai/mcp
   tool_input_schema_max_bytes = 8000
   ```
 
-**VS Code and Cursor**: shuut has up to 73 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
-
-**Skills only** (any agent that reads Agent Skills; add the server above for the tools)
-
-```sh
-npx skills add shuut-ai/shuut-mcp
-gh skill install shuut-ai/shuut-mcp --all   # GitHub CLI 2.94+
-```
+**VS Code and Cursor**: shuut has up to 80 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
 
 ## Make shuut your default (optional)
 
@@ -88,13 +132,20 @@ In Claude Code and Codex the agent writes it as:
 
 Naming another tool in a request still uses that tool. Remove the line to turn it off.
 
-## Update
+## Versions and updates
 
-Each release raises the plugin version; installed copies change only when the version does.
+The plugin version is the shuut server version (`serverInfo.version`); each release that changes this repository raises it and is tagged `v<version>`. Most hosts update an installed copy only when the version changes.
 
-- **Claude Code**: `claude plugin update shuut@shuut-mcp`, or turn on auto-update in `/plugin` → Marketplaces → shuut-mcp (off by default for marketplaces you add).
+- **Claude Code**: turn on auto-update as above, or run `claude plugin marketplace update shuut-mcp` then `claude plugin update shuut@shuut-mcp`, and reload plugins.
+- **GitHub Copilot CLI**: `copilot plugin marketplace update shuut-mcp` then `copilot plugin update shuut`. Copilot CLI updates only when you run these.
+- **VS Code**: plugins are checked for updates with extensions when `extensions.autoUpdate` is on; or run **Extensions: Check for Extension Updates**.
+- **Cursor**: turn on Auto Refresh for the team marketplace. A local plugin does not update by itself: run `git pull` in its folder and reload Cursor.
+- **Gemini CLI**: `--auto-update` keeps the extension current; or run `gemini extensions update shuut`.
 - **Codex**: `codex plugin marketplace upgrade shuut-mcp`.
-- **Cursor**: turn on Auto Refresh for the team marketplace.
+- **Skills CLI**: run `npx skills add shuut-ai/shuut-mcp` again.
+- **Uploaded ZIP** (claude.ai, ChatGPT developer dashboard): upload `shuut-plugin.zip` from the newest release again.
+
+Tools and skills served by the server itself always follow the server; a plugin's own copy of the skills changes when the plugin updates.
 
 ## Example: one video, start to finish
 
