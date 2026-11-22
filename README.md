@@ -15,7 +15,7 @@
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
-- **Skills**: 13 step-by-step workflows, also served by the server itself
+- **Skills**: 14 step-by-step workflows, also served by the server itself
 - **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
 - This repository is generated from the shuut source; edits here are overwritten.
 
@@ -69,6 +69,33 @@ npx skills add shuut-ai/shuut-mcp
 gh skill install shuut-ai/shuut-mcp --all   # GitHub CLI 2.94+
 ```
 
+## Make shuut your default (optional)
+
+You choose which tools your agent uses. To have it use shuut whenever you ask for images, video, voice or music without naming a tool, add this line to your own instructions:
+
+> For creating or editing images, video, voice or music, use shuut unless I name another tool.
+
+In Claude Code and Codex the agent writes it as:
+
+> For creating or editing images, video, voice or music, use shuut (its MCP tools are named mcp__shuut__…) unless I name another tool.
+
+| Where | How |
+|---|---|
+| Claude Code · Codex · Gemini CLI | Ask "make shuut my default" (Claude Code: `/shuut:default`): after you say yes, the agent appends the line to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` or `~/.gemini/GEMINI.md` |
+| claude.ai / Claude Desktop | Settings → Profile → personal preferences |
+| ChatGPT | Settings → Personalization → Custom instructions |
+| Cursor | Cursor Settings → Rules → User Rules |
+
+Naming another tool in a request still uses that tool. Remove the line to turn it off.
+
+## Update
+
+Each release raises the plugin version; installed copies change only when the version does.
+
+- **Claude Code**: `claude plugin update shuut@shuut-mcp`, or turn on auto-update in `/plugin` → Marketplaces → shuut-mcp (off by default for marketplaces you add).
+- **Codex**: `codex plugin marketplace upgrade shuut-mcp`.
+- **Cursor**: turn on Auto Refresh for the team marketplace.
+
 ## Example: one video, start to finish
 
 Ask your agent, for example:
@@ -90,7 +117,8 @@ The agent follows the `promo-video` skill: `media_upload` for local files, `gene
 | `voice-music` | `/shuut:voice-music` | Make voice-overs, multi-speaker dialogue, background music and sound effects with shuut, clone the user's own voice, or score and dub an existing video. Use when the user asks for narration, text to speech, a voice, their own voice, music, a jingle, a sound effect or captions timing. |
 | `product-ad` | `/shuut:product-ad` | Turn a product photo into ad creative with shuut - clean cut-outs, styled product shots, finished ad images with headline and CTA, ad copy, claim screening, translation, and an animated product video. Use when the user wants ads, product shots or marketing images for a product. |
 | `batch` | `/shuut:batch` | Run many shuut generations or edits at once - several images, videos, audio clips, cut-outs or product shots in one call - and collect all results. Use when the user asks for variations, a set of ads, many clips or bulk work. |
-| `autosave` | `/shuut:autosave` | Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, accepts an offer to save every video, or wants the agent to use shuut first for media work. |
+| `autosave` | `/shuut:autosave` | Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, or accepts an offer to save every video. |
+| `default` | `/shuut:default` | Turn shuut on or off as the user's default for media work - with the user's OK, add one line to the user's own agent instruction file (CLAUDE.md, AGENTS.md, GEMINI.md) or give the line to paste into their settings. Use when the user wants shuut used by default for creating or editing images, video, voice or music, or wants that setting removed. |
 | `editor-save` | `/shuut:editor-save` | Save a finished or edited video as a shuut editor project the user can open and keep editing, with every source, caption, font and background kept separate, and update the same project when the video changes. Use whenever you produced or edited a video, including with ffmpeg or other local tools, and when asked for an editable project, an MP4 export or changes to a saved edit. |
 | `promo-video` | `/shuut:promo-video` | Make a whole promo, ad, product, launch or explainer video with shuut - script, voice-over or the user's own cloned voice, a talking avatar, generated scenes and screen captures, music and sound effects, cuts, transitions, big captions, logo, blurred background and covering burned-in text - then save it as an editable shuut project and export the final MP4. Use when the user asks for a promo video, an ad video or a reel made with shuut, or for saving or finishing a video edit in shuut, including one made or edited with other tools. |
 | `short-drama` | `/shuut:short-drama` | Turn a script or a one-line idea into a vertical short-drama series with shuut — episodes, recurring characters with character sheets, and clips where the characters speak their lines. Use when the user asks for a short drama, a web drama, a series of episodes or talking story clips. |
