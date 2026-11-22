@@ -15,7 +15,7 @@
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
-- **Skills**: 14 step-by-step workflows (`skills/`), also served by the server itself
+- **Skills**: 15 step-by-step workflows (`skills/`), also served by the server itself
 - **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
 - **One folder for every host**: this repository's root is the plugin (Claude Code, GitHub Copilot CLI, VS Code agent plugins, Cursor, Gemini CLI, Codex)
 - This repository is generated from the shuut source; edits here are overwritten.
@@ -37,7 +37,7 @@ claude plugin marketplace add shuut-ai/shuut-mcp
 claude plugin install shuut@shuut-mcp
 ```
 
-Or inside Claude Code: `/plugin marketplace add shuut-ai/shuut-mcp` then `/plugin install shuut@shuut-mcp`. Skills run as `/shuut:<skill>`. To get new versions automatically, run `/plugin` in Claude Code's terminal UI, open **Marketplaces** → **shuut-mcp** and choose **Enable auto-update** (it is off by default for marketplaces you add).
+Or inside Claude Code: `/plugin marketplace add shuut-ai/shuut-mcp` then `/plugin install shuut@shuut-mcp`. Skills run as `/shuut:<skill>`. Claude Code updates plugins from a marketplace you add only after you turn on its auto-update once: run `/plugin` in Claude Code's terminal UI, open **Marketplaces** → **shuut-mcp** and choose **Enable auto-update**, or ask Claude to keep shuut up to date (`/shuut:auto-update`).
 
 ### GitHub Copilot CLI
 
@@ -46,7 +46,7 @@ copilot plugin marketplace add shuut-ai/shuut-mcp
 copilot plugin install shuut@shuut-mcp
 ```
 
-Start a new session; `/skills list` shows the shuut skills.
+Start a new session; `/skills list` shows the shuut skills. Copilot CLI updates plugins from a marketplace you add only after you turn on its auto-update: ask Copilot to keep shuut up to date (the `auto-update` skill), or see [Versions and updates](#versions-and-updates).
 
 ### VS Code (agent plugins)
 
@@ -134,18 +134,21 @@ Naming another tool in a request still uses that tool. Remove the line to turn i
 
 ## Versions and updates
 
-The plugin version is the shuut server version (`serverInfo.version`); each release that changes this repository raises it and is tagged `v<version>`. Most hosts update an installed copy only when the version changes.
+The plugin version is the shuut server version (`serverInfo.version`); each release that changes this repository raises it and is tagged `v<version>`. shuut's tools always come from the server; the plugin's skills, subagents and hooks are a copy that changes when your app updates the plugin.
 
-- **Claude Code**: turn on auto-update as above, or run `claude plugin marketplace update shuut-mcp` then `claude plugin update shuut@shuut-mcp`, and reload plugins.
-- **GitHub Copilot CLI**: `copilot plugin marketplace update shuut-mcp` then `copilot plugin update shuut`. Copilot CLI updates only when you run these.
-- **VS Code**: plugins are checked for updates with extensions when `extensions.autoUpdate` is on; or run **Extensions: Check for Extension Updates**.
-- **Cursor**: turn on Auto Refresh for the team marketplace. A local plugin does not update by itself: run `git pull` in its folder and reload Cursor.
-- **Gemini CLI**: `--auto-update` keeps the extension current; or run `gemini extensions update shuut`.
-- **Codex**: `codex plugin marketplace upgrade shuut-mcp`.
-- **Skills CLI**: run `npx skills add shuut-ai/shuut-mcp` again.
-- **Uploaded ZIP** (claude.ai, ChatGPT developer dashboard): upload `shuut-plugin.zip` from the newest release again.
+To turn on automatic updates, ask your agent to keep shuut up to date (the `auto-update` skill, `/shuut:auto-update` in Claude Code): after you say yes, it changes the one setting your app needs, or tells you how your app updates plugins.
 
-Tools and skills served by the server itself always follow the server; a plugin's own copy of the skills changes when the plugin updates.
+| Host | Automatic updates | Update now |
+|---|---|---|
+| Codex | Yes: each start refreshes the `shuut-mcp` marketplace and reinstalls shuut when it changed. Subagents copied to `~/.codex/agents` do not update: copy them again | `codex plugin marketplace upgrade shuut-mcp` |
+| Gemini CLI | Yes, with `--auto-update` (checked when Gemini CLI starts) | `gemini extensions update shuut` |
+| VS Code | Yes, when `extensions.autoUpdate` is on | **Chat: Update Plugins** |
+| Claude Code | After you turn it on once (off by default for marketplaces you add): `/plugin` → **Marketplaces** → **shuut-mcp** → **Enable auto-update**, or `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `~/.claude/settings.json` | `claude plugin marketplace update shuut-mcp`, then `claude plugin update shuut@shuut-mcp` and `/reload-plugins` |
+| GitHub Copilot CLI | After you turn it on once: `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `~/.copilot/settings.json` (checked when a session starts) | `copilot plugin marketplace update shuut-mcp`, then `copilot plugin update shuut@shuut-mcp` |
+| Cursor | Team marketplace with Auto Refresh on (needs the Cursor GitHub App on the repository) | Team marketplace: Refresh in the Cursor dashboard. Local plugin: `git pull` in its folder, then reload Cursor |
+| claude.ai, Claude Desktop, Cowork (marketplace added in Customize → Plugins) | Sync automatically (reported not to pick up new commits yet: anthropics/claude-code#93825) | **Check for updates** |
+| Skills CLI | No | `npx skills update` (GitHub CLI: `gh skill update`) |
+| Uploaded ZIP (claude.ai, ChatGPT developer dashboard) | No | Upload `shuut-plugin.zip` from the newest release again |
 
 ## Example: one video, start to finish
 
@@ -168,6 +171,7 @@ The agent follows the `promo-video` skill: `media_upload` for local files, `gene
 | `voice-music` | `/shuut:voice-music` | Make voice-overs, multi-speaker dialogue, background music and sound effects with shuut, clone the user's own voice, or score and dub an existing video. Use when the user asks for narration, text to speech, a voice, their own voice, music, a jingle, a sound effect or captions timing. |
 | `product-ad` | `/shuut:product-ad` | Turn a product photo into ad creative with shuut - clean cut-outs, styled product shots, finished ad images with headline and CTA, ad copy, claim screening, translation, and an animated product video. Use when the user wants ads, product shots or marketing images for a product. |
 | `batch` | `/shuut:batch` | Run many shuut generations or edits at once - several images, videos, audio clips, cut-outs or product shots in one call - and collect all results. Use when the user asks for variations, a set of ads, many clips or bulk work. |
+| `auto-update` | `/shuut:auto-update` | Keep the shuut plugin up to date - with the user's OK, turn on automatic updates for the shuut-mcp marketplace in Claude Code or GitHub Copilot CLI (one setting in the user's own settings file), or tell the user how their app updates the plugin. Use when the user wants shuut to stay current, asks how to update the shuut plugin or its skills, or wants plugin auto-update on or off. |
 | `autosave` | `/shuut:autosave` | Turn shuut auto-save on or off - with the user's OK, add one line to the user's own instruction file so that every video the agent finishes or edits (also with ffmpeg or other local tools) is saved to the user's private shuut editor projects without asking each time. Use when the user wants videos always saved to shuut, asks to turn auto-save on or off, or accepts an offer to save every video. |
 | `default` | `/shuut:default` | Turn shuut on or off as the user's default for media work - with the user's OK, add one line to the user's own agent instruction file (CLAUDE.md, AGENTS.md, GEMINI.md) or give the line to paste into their settings. Use when the user wants shuut used by default for creating or editing images, video, voice or music, or wants that setting removed. |
 | `editor-save` | `/shuut:editor-save` | Save a finished or edited video as a shuut editor project the user can open and keep editing, with every source, caption, font and background kept separate, and update the same project when the video changes. Use whenever you produced or edited a video, including with ffmpeg or other local tools, and when asked for an editable project, an MP4 export or changes to a saved edit. |
