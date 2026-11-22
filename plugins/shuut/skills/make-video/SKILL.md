@@ -11,7 +11,7 @@ description: Generate videos with shuut (Seedance, Kling, Veo and other video mo
 4. Call `jobs_wait` repeatedly until `done` is true (1-5 minutes; each call waits up to 50 s).
 5. Share `outputs[].url` for playback and `outputs[].original.url` for the full-resolution source when present; both expire at their stated times. The original object has file_id, url, url_expires_at, mime and, when known, bytes, width, height, seconds and codec.
 6. To continue the clip, call `generate_video` with `extend_video` set to the output `file_id`. To start the next shot from where this one ends, `video_frame` (free) turns the clip's last frame into an image `file_id`; pass it as `first_frame` of the next `generate_video`.
-7. To make one finished video from several clips, voice and music (cuts, captions, logo), pass their `file_id`s to `editor_save`, then `editor_export` for the MP4 (see the promo-video and editor-save skills).
+7. To make one finished video from several clips, voice and music (cuts, captions, logo), pass their `file_id`s to `editor_save`, then `editor_export` for the MP4 (or WebM, GIF, M4A, WAV) (see the promo-video and editor-save skills).
 
 Example arguments for `generate_video`:
 

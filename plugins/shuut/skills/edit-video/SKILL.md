@@ -19,7 +19,7 @@ description: Edit an existing video with shuut - swap people, outfits, objects o
 3. Call it with `dry_run: true` to see the price and any input-limit error (length, size, resolution) before spending. Edit tools that quote started seconds show an upper bound and refund the difference after the job.
 4. Call it for real, then `jobs_wait` until done.
 
-To cut, join, add captions, a logo, transitions or a blurred background, or cover burned-in text, use `editor_save` instead (free, no `dry_run`, saved at once): it makes a project the user can keep editing, and saving the same video again (same `key` = output path, and its `project_id`) updates that project instead of adding one. `editor_export` renders the MP4 and returns a `task_id` to wait on with `editor_task_wait` (not `jobs_wait`) (see the editor-save skill).
+To cut, join, add captions, a logo, transitions or a blurred background, or cover burned-in text, use `editor_save` instead (free, no `dry_run`, saved at once): it makes a project the user can keep editing, and saving the same video again (same `key` = output path, and its `project_id`) updates that project instead of adding one. `editor_export` renders the MP4 (or WebM, GIF, M4A, WAV) and returns a `task_id` to wait on with `editor_task_wait` (not `jobs_wait`) (see the editor-save skill).
 
 Call `swap_find_people` first; once it returned the person p1:
 

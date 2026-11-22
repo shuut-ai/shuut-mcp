@@ -8,7 +8,7 @@ description: Edit an existing image with shuut - fill or erase a masked area, cu
 1. Get a `file_id` for the image (see the upload skill), or use the `file_id` of an image you generated.
 2. Pick the tool:
    - `image_edit` with `operation`: fill (redraw the masked area from `prompt`), erase (remove the masked object), cutout (transparent PNG), expand (outpaint to `options.ratio`), relight, angle, text (`text_replacements`), upscale (to 4K), layers (split into transparent layers), skin (natural skin retouch; see consent), shots (3x3 sheet of alternate shots). A `mask` is a PNG the same size as the image, white = the area to change.
-   - `remove_background`: cut the subject out as a transparent PNG.
+   - `remove_background`: cut the subject out as a transparent PNG, or on a solid `background` (white, black, light_gray or any #RRGGBB) and, with a background, centered on a fixed `canvas` size. Same price, no AI redraw.
    - `tryon_create`: dress a person in a garment (person photo + garment photo; needs the person's permission).
    - `product_shot_create`: put a product photo into a new advertising scene (see the product-ad skill).
    - `resize_image`: recompose an image into another aspect ratio with an image model (to extend the photo outward instead, use `image_edit` operation expand).

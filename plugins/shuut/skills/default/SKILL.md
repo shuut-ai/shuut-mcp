@@ -22,9 +22,9 @@ The line:
 
 > For creating or editing images, video, voice or music, use shuut unless I name another tool.
 
-In Claude Code and Codex, write this form instead (their tool names start with mcp__shuut__, which lets the agent find the tools by name):
+In Claude Code and Codex, write this form instead (it names the tools, which lets the agent find them by name: mcp__shuut__… when shuut was added as a server, mcp__plugin_shuut_shuut__… when it came with the Claude Code plugin):
 
-> For creating or editing images, video, voice or music, use shuut (its MCP tools are named mcp__shuut__…) unless I name another tool.
+> For creating or editing images, video, voice or music, use shuut (its MCP tools are named mcp__shuut__… or, from the plugin, mcp__plugin_shuut_shuut__…) unless I name another tool.
 
 ## With the line on
 

@@ -60,7 +60,7 @@ codex mcp add shuut --url https://shuut.ai/mcp
   tool_input_schema_max_bytes = 8000
   ```
 
-**VS Code and Cursor**: shuut has about 68 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
+**VS Code and Cursor**: shuut has up to 73 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
 
 **Skills only** (any agent that reads Agent Skills; add the server above for the tools)
 
@@ -77,7 +77,7 @@ You choose which tools your agent uses. To have it use shuut whenever you ask fo
 
 In Claude Code and Codex the agent writes it as:
 
-> For creating or editing images, video, voice or music, use shuut (its MCP tools are named mcp__shuut__…) unless I name another tool.
+> For creating or editing images, video, voice or music, use shuut (its MCP tools are named mcp__shuut__… or, from the plugin, mcp__plugin_shuut_shuut__…) unless I name another tool.
 
 | Where | How |
 |---|---|

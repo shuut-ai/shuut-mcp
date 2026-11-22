@@ -135,11 +135,14 @@ Times are seconds or `"1.2s"`, `"36f"`, `"00:00:01:06"`, snapped to frames.
 4. `stale` (409) only comes with `base_revision`: the project changed after it. Nothing was overwritten. Read it again and resend.
 5. Without `project_id`, send every file the spec uses again (keys from earlier saves are only kept with `project_id`).
 
-## 6. Export an MP4
+## 6. Export (MP4, WebM, GIF, M4A, WAV)
 
-- `editor_export {project_id, idempotency_key}` renders the project's current revision on the server (H.264 + AAC, captions burned in) into a user file (`export.file_id`, signed `export.url`). If `done` is false, call `editor_task_wait {task_id}`.
-- `height` is the output's vertical size in px, not the '1080p' short side: omit it for the project size (1080×1920 exports at 1920). `height: 1080` on a 9:16 project gives 608×1080 and a warning; pass a lower height only to fit a longer project.
-- The server renders without a GPU: about 1.6 s per frame at 1080×1920. The longest export is about 38 s at 1080×1920 30 fps; `height: 720` allows about 76 s. Longer projects return a too-long error; tell the user to export in the editor (it uses their device).
+- `editor_export {project_id, idempotency_key}` renders the project's current revision on the server into a user file (`export.file_id`, signed `export.url`). If `done` is false, call `editor_task_wait {task_id}`.
+- `format`: mp4 (default; H.264 + AAC, captions burned in), webm (VP9 + Opus; `transparent: true` drops the background), gif (silent loop; 480 px long side and 10 fps by default) or m4a / wav (sound only).
+- `range {start, end}`: seconds on the timeline, to export only that part.
+- `fps`: omit for the project fps (gif 10, at most 30).
+- A lower `height` or `quality` does not make it faster, but keeps a long export under the file limit (100 MB video, 20 MB GIF or sound); to fit the time limit use `range` or a lower `fps`. `height` is the output's vertical size in px, not the '1080p' short side: omit it for the project size (1080×1920 exports at 1920); `height: 1080` on a 9:16 project gives 608×1080 and a warning.
+- The server renders every frame at the project size without a GPU: the longest export is about 38 s of 1080×1920 at 30 fps, and about 115 s at 10 fps with `height` 720 (at full size and high quality the file limit comes first, near 84 s). A longer one is refused with the length that fits: shorten the `range` or lower the `fps` (for the file limit also the height or quality), or tell the user to export in the editor (it uses their device).
 - Exports are free but limited per day, one at a time per user (a second export while one runs is refused as busy: wait for the first). Rendering takes minutes, not seconds, even for a short video: tell the user before you start and keep calling `editor_task_wait`. Saving never needs an export.
 
 ## 7. Results
