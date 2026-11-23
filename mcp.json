@@ -3,17 +3,7 @@
   "mcpServers": {
     "shuut": {
       "type": "streamable-http",
-      "url": "https://shuut.ai/mcp",
-      "extensions": {
-        "com.openai": {
-          "auth": {
-            "type": "oauth",
-            "client": {
-              "mode": "cimd"
-            }
-          }
-        }
-      }
+      "url": "https://shuut.ai/mcp"
     }
   }
 }

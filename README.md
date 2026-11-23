@@ -16,13 +16,13 @@ Image generation, video generation and image/video editing with GPT Image, Nano 
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
 - **Skills**: 15 step-by-step workflows (`skills/`), also served by the server itself
-- **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
+- **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, GitHub Copilot CLI, VS Code, Cursor and Codex; the ones that spend quote with `dry_run` first and create only after you approve the price
 - **One folder for every host**: this repository's root is the plugin (Claude Code, GitHub Copilot CLI, VS Code agent plugins, Cursor, Gemini CLI, Codex)
 - This repository is generated from the shuut source; edits here are overwritten.
 
 ## Install
 
-Pick one way per agent. A plugin brings the server, the skills and (where the host supports them) the subagents in one install; sign in with your shuut account the first time a shuut tool runs.
+Pick one way per agent. A plugin brings the server, the skills and (where the host supports them) the subagents in one install; sign in with your shuut account when your app asks (most apps ask the first time a shuut tool runs; GitHub Copilot CLI asks when a session starts).
 
 **One click** (server only)
 
@@ -136,18 +136,18 @@ Naming another tool in a request still uses that tool. Remove the line to turn i
 
 The plugin version is the shuut server version (`serverInfo.version`); each release that changes this repository raises it and is tagged `v<version>`. shuut's tools always come from the server; the plugin's skills, subagents and hooks are a copy that changes when your app updates the plugin.
 
-To turn on automatic updates, ask your agent to keep shuut up to date (the `auto-update` skill, `/shuut:auto-update` in Claude Code): after you say yes, it changes the one setting your app needs, or tells you how your app updates plugins.
+To turn on automatic updates, ask your agent to keep shuut up to date (the `auto-update` skill, `/shuut:auto-update` in Claude Code): after you say yes, it changes the one setting your app needs, or tells you how your app updates plugins. The plugin brings the shuut server, so a shuut server you added yourself before (`codex mcp add`, `copilot mcp add`) is no longer needed: `codex mcp remove shuut`, `copilot mcp remove shuut`.
 
 | Host | Automatic updates | Update now |
 |---|---|---|
 | Codex | Yes: each start refreshes the `shuut-mcp` marketplace and reinstalls shuut when it changed. Subagents copied to `~/.codex/agents` do not update: copy them again | `codex plugin marketplace upgrade shuut-mcp` |
-| Gemini CLI | Yes, with `--auto-update` (checked when Gemini CLI starts) | `gemini extensions update shuut` |
+| Gemini CLI | Yes, with `--auto-update`: checked when Gemini CLI starts; when a new version changes the skills, Gemini asks you to confirm | `gemini extensions update shuut` |
 | VS Code | Yes, when `extensions.autoUpdate` is on | **Chat: Update Plugins** |
-| Claude Code | After you turn it on once (off by default for marketplaces you add): `/plugin` → **Marketplaces** → **shuut-mcp** → **Enable auto-update**, or `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `~/.claude/settings.json` | `claude plugin marketplace update shuut-mcp`, then `claude plugin update shuut@shuut-mcp` and `/reload-plugins` |
-| GitHub Copilot CLI | After you turn it on once: `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `~/.copilot/settings.json` (checked when a session starts) | `copilot plugin marketplace update shuut-mcp`, then `copilot plugin update shuut@shuut-mcp` |
+| Claude Code | After you turn it on once (off by default for marketplaces you add): `/plugin` → **Marketplaces** → **shuut-mcp** → **Enable auto-update**, or `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `settings.json` in `~/.claude` (or `$CLAUDE_CONFIG_DIR`) | `claude plugin marketplace update shuut-mcp`, then `claude plugin update shuut@shuut-mcp` and `/reload-plugins` |
+| GitHub Copilot CLI | After you turn it on once: `"autoUpdate": true` on the `shuut-mcp` entry of `extraKnownMarketplaces` in `settings.json` in `~/.copilot` (or `$COPILOT_HOME`), checked when a session starts in a folder you trust | `copilot plugin marketplace update shuut-mcp`, then `copilot plugin update shuut@shuut-mcp` |
 | Cursor | Team marketplace with Auto Refresh on (needs the Cursor GitHub App on the repository) | Team marketplace: Refresh in the Cursor dashboard. Local plugin: `git pull` in its folder, then reload Cursor |
 | claude.ai, Claude Desktop, Cowork (marketplace added in Customize → Plugins) | Sync automatically (reported not to pick up new commits yet: anthropics/claude-code#93825) | **Check for updates** |
-| Skills CLI | No | `npx skills update` (GitHub CLI: `gh skill update`) |
+| Skills CLI | No | `npx skills update` (new skills: run `npx skills add shuut-ai/shuut-mcp` again; GitHub CLI: `gh skill update`) |
 | Uploaded ZIP (claude.ai, ChatGPT developer dashboard) | No | Upload `shuut-plugin.zip` from the newest release again |
 
 ## Example: one video, start to finish
@@ -188,6 +188,7 @@ Separate helpers the main conversation can hand a job to. They cannot ask you an
 | `shuut:variant-runner` | `shuut_variant_runner` | Makes several versions of one shuut request (prompts, angles, ratios, models or photos) with batch calls of up to 8 - prices each batch with dry_run and returns the quotes, then runs a batch only after the user approves that batch's exact total. Use for variations, A/B sets or the same edit on many photos. |
 
 - **Claude Code and Cursor**: included in the plugin (`agents/`); in Claude Code call one with `@agent-shuut:<name>`.
+- **GitHub Copilot CLI and VS Code**: included in the plugin (`com.github.copilot/agents/`); Copilot can hand a job to `shuut:ad-director` or `shuut:variant-runner` by itself, or you pick one with `/agent` (`--agent shuut:<name>`).
 - **Codex**: plugins cannot carry subagents, so copy the files in `.codex/agents/` to `~/.codex/agents/` (they use the shuut tools of the session, so install the plugin or add the server too):
 
 ```sh
