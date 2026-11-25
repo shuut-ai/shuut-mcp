@@ -15,6 +15,7 @@
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Paid tools run at once; with `dry_run: true` they return the exact price without spending, and `max_spend_credits` caps a call.
 
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
+- **Billing**: credits come from one-time credit packs or a monthly plan (Starter, Plus or Ultra); each plan includes a monthly credit balance. Current prices are on shuut.ai
 - **Skills**: 15 step-by-step workflows (`skills/`), also served by the server itself
 - **Subagents**: 2 helpers (Ad director, Variant runner) for Claude Code, GitHub Copilot CLI, VS Code, Cursor and Codex; the ones that spend make the job right away, or quote with `dry_run` first and create only after you approve the price when you ask to see it or set a budget
 - **One folder for every host**: this repository's root is the plugin (Claude Code, GitHub Copilot CLI, VS Code agent plugins, Cursor, Gemini CLI, Codex)
