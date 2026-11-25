@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "shuut",
-  "version": "1.1.9",
-  "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server. Auto-save, a shuut account setting, is on by default: videos the agent finishes are saved to your shuut editor projects (turn it off at shuut.ai/mcp).",
+  "version": "1.1.10",
+  "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server. Auto-save, a shuut account setting, is on by default: videos the agent finishes are saved to your shuut editor projects (turn it off at shuut.ai/account#apps).",
   "homepage": "https://shuut.ai/mcp",
   "repository": "https://github.com/shuut-ai/shuut-mcp",
   "license": "MIT",

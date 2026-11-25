@@ -1,5 +1,5 @@
 {
-  "description": "shuut save reminder: after a shell command writes a video file with ffmpeg or a similar local tool, adds one note for the agent: auto-save is a setting of your shuut account (on by default, changed at https://shuut.ai/mcp) and, while it is on, the agent saves the final video to your shuut editor projects with editor_save. SHUUT_SAVE_REMINDER=off or SHUUT_AUTOSAVE=off removes this note on this computer only. Reads only the hook input and whether that file is a non-empty regular file (a stat, never an open); sends nothing anywhere and writes no files.",
+  "description": "shuut save reminder: after a shell command writes a video file with ffmpeg or a similar local tool, adds one note for the agent: auto-save is a setting of your shuut account (on by default, changed at https://shuut.ai/account#apps) and, while it is on, the agent saves the final video to your shuut editor projects with editor_save. SHUUT_SAVE_REMINDER=off or SHUUT_AUTOSAVE=off removes this note on this computer only. Reads only the hook input and whether that file is a non-empty regular file (a stat, never an open); sends nothing anywhere and writes no files.",
   "hooks": {
     "PostToolUse": [
       {
