@@ -1,6 +1,6 @@
 ---
 name: editor-save
-description: Save a finished or edited video as a shuut editor project the user can open and keep editing, with every source, caption, font and background kept separate, and update the same project when the video changes. Use whenever you produced or edited a video, including with ffmpeg or other local tools, and when asked for an editable project, an MP4 export or changes to a saved edit.
+description: Save a finished or edited video as a shuut editor project the user can open and keep editing, with every source, caption, font and background kept separate, in the user's personal space or a team folder, and update the same project when the video changes. Auto-save is a setting of the user's shuut account (on by default, changed at https://shuut.ai/mcp); while it is on, final videos you hand over are saved. Use whenever you produced or edited a video, including with ffmpeg or other local tools, and when asked for an editable project, a team or brand folder, an MP4 export or changes to a saved edit.
 ---
 
 # Save edits as editable shuut projects
@@ -9,18 +9,41 @@ description: Save a finished or edited video as a shuut editor project the user 
 
 1. Start uploading every source and font file (`media_upload`) in the background; use the `upload_id`s right away.
 2. Call `editor_save` with `name`, `key` (the final output path), `media`, `fonts`, `spec` (or `ffmpeg` with the commands you ran — see "Made with ffmpeg"), the final render as `reference` and an `idempotency_key`.
-3. Give the user `open_url` in one line.
+3. Give the user `open_url` in one line, with where it was saved.
 4. Next time the same video changes, save again with the same `project_id` (or the same `key`): the project is updated, not duplicated.
 
-## 1. When to save
+## 1. When to save: the user's auto-save setting
 
-- **The user asked to save this video**: save it, and its later versions, without asking again.
-- **The user's own instructions turned on shuut auto-save** (a line saying to save videos to their private shuut editor projects; the autosave skill adds it): every time you give the user a finished or edited video, call `editor_save` without asking, even if you cut it with ffmpeg or another tool.
-- **Otherwise**: hand over the video, then offer once in the conversation (not again after a no): save it as an editable project in their private shuut editor projects (free), and that the autosave skill (`/shuut:autosave`) turns on saving every video. Save only after they say yes.
-- Save only the final video you hand over: not intermediates, previews, test frames or rejected candidates.
-- Exceptions: the user asked you not to save to shuut, or the video is only a draft to check something.
-- Don't narrate the saving (no upload or progress steps). End your answer with one line: the project is in the user's private editor projects, plus `open_url`. Once per project in the conversation.
+Auto-save is a setting of the user's shuut account. It is on by default, and the user turns it off or on at https://shuut.ai/mcp; `editor_save` checks it on every save.
+
+- **Auto-save on**: after you give the user a finished or edited video (also cut with ffmpeg or another local tool), save it with `editor_save`.
+- **Auto-save off**: `editor_save` refuses with autosave_off and saves nothing. Ask the user once whether to save this video to the Edit Studio; if they say yes, call `editor_save` again with `user_requested: true`. Do not ask again for the same video.
+- The user said not to save to shuut (in this conversation or for this video), or their own instructions say not to auto-save to shuut: don't save, whatever the setting. Their word in this conversation comes first.
+- The user asked to save a video: save it and its later versions with `user_requested: true`.
+- Save only the final video you hand over: not intermediates, previews, test frames, rejected candidates or a draft made only to check something.
+- Don't narrate the saving (no upload or progress steps). End your answer with one line, once per project in the conversation: where it was saved (the user's personal editor projects, or the team folder), the `open_url`, and that auto-save can be turned off at https://shuut.ai/mcp.
+- An upload fails with media_consent_required (the account withdrew shuut's one-time media upload notice; otherwise the first use through MCP records it as accepted): you cannot accept it for them. Tell the user in one line to accept it again at https://shuut.ai, and save after they have.
+- If the app asks for approval before `editor_save` runs, that choice is the user's. You may mention once that allowing it for good (for example "Allow and don't ask me again" in Codex) skips that prompt.
 - Send the edit, not just the result: the sources as `media` and your edit as `spec` (section 4) or, if you made it with ffmpeg, the commands you ran as `ffmpeg` ("Made with ffmpeg"), the final render as `reference`. `video` alone is only for a video that is not your own edit; if you saved one that way, save again with its `project_id`, the sources and the `spec` or `ffmpeg`.
+
+### Where it goes
+
+- A new project goes to the user's personal space: leave out `space` and `folder`.
+- Work for a team, a brand or a client (an ad, reel or video for a brand the user works on) when the user has a team: first call `editor_folders` to list the team folders. If a folder is for that brand or client, pass its name exactly as listed, in the language it is written in (for example `["누오라"]` for a Nuora reel when the list has "누오라"), with `space` "team"; never translate it, respell it or make a second folder for the same brand. Only when no listed folder fits, use the brand or client name as the user wrote it; a missing folder is created. Without a team the save is refused with no_team: save to the personal space.
+- A folder the user named: pass it as `folder` (with `space` "team" if it is a team folder).
+- Saving a project again keeps it where it is: `space` and `folder` count only for a new project, and `location` in the result says where it is. To move it, call `editor_project_update` with `action` "move", `space` and `folder`.
+
+Example arguments for `editor_folders`:
+
+```json
+{ "action": "list", "space": "team" }
+```
+
+Example arguments for `editor_save`:
+
+```json
+{ "name": "Nuora knit reel", "key": "out/nuora_knit_reel.mp4", "space": "team", "folder": ["누오라"], "media": { "src1": "<clip_file_id>" }, "spec": { "shots": [{ "id": "S1", "media": "src1" }] }, "reference": "<final_video_file_id>", "idempotency_key": "nuora-knit-reel-1" }
+```
 
 ## 2. One video = one project (update, don't duplicate)
 

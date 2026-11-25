@@ -8,14 +8,14 @@
 #      has no getline, no redirection and no pipes. Paths that could reach the network or a device (//host, \\host,
 #      /inet, /dev, /proc, /sys, /net, /Network, /afs) are dropped here, before anything touches the file system.
 #   2. (-v mode=emit) stdin: "B" and "N<name>" lines (the files the sh pass found with test -f / -s, which only stat).
-#      stdout: nothing, or one JSON object whose hookSpecificOutput.additionalContext asks the agent to save the video
-#      with the shuut editor_save tool.
+#      stdout: nothing, or one JSON object whose hookSpecificOutput.additionalContext tells the agent about the user's
+#      shuut auto-save setting and how to save the video with the shuut editor_save tool.
 # -v only=<tool>: look at that tool only (Claude Code runs one handler per tool, so each note is added once).
 # POSIX awk only (macOS awk, gawk, mawk, busybox): no length(array), no regex intervals, no gsub on backslashes.
 # Work is linear in the input: the JSON is split on its quotes once, and the command is read through a small window.
 
 BEGIN {
-	if (mode == "emit") { RS = "\n"; NOTE_HEAD = "shuut: this command made a video file ("; NOTE_TAIL = "). If shuut MCP tools are available (maybe after a tool search) and the user's own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference (editor-save skill). Always key: the output file path, plus the project_id you got; new: true only if asked."; NOTE_BG = "It is still running in the background: save the video after it finishes." }
+	if (mode == "emit") { RS = "\n"; NOTE_HEAD = "shuut: this command made a video file ("; NOTE_TAIL = "). If shuut MCP tools are available (maybe after a tool search): auto-save is the user's shuut account setting (on unless off at shuut.ai/mcp): after handing over the final video, save it as an editable shuut project with editor_save (free); on autosave_off ask once, yes: user_requested true; not if the user said not to. Final videos only, not previews. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference. Always key: the output file path, plus the project_id you got; new: true only if asked. Team or brand work: space team, folder = the matching editor_folders name as listed. End: where it went, open_url."; NOTE_BG = "It is still running in the background: save the video after it finishes." }
 	else RS = "\001"
 	n = split("ffmpeg remotion handbrakecli mkvmerge mp4box melt", tl, " ")
 	for (i = 1; i <= n; i++) if (only == "" || tl[i] == tolower(only)) TOOL[tl[i]] = 1

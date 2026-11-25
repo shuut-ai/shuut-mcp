@@ -1,15 +1,18 @@
 #!/bin/sh
 # shuut plugin hook (PostToolUse on shell commands, macOS, Linux and Git Bash on Windows).
 # Generated from shared/mcp-hooks/save-to-shuut.sh by scripts/mcp/build-skills.mjs; edits here are overwritten.
-# $1 (optional): look at this tool only. SHUUT_SAVE_REMINDER=off turns the hook off.
+# $1 (optional): look at this tool only. SHUUT_SAVE_REMINDER=off or SHUUT_AUTOSAVE=off (the same: 0, off, false or no,
+# in any case) turns the note off on this computer; the shuut account's auto-save setting does not change.
 # save-to-shuut.awk lists the video files the command wrote; this script keeps the ones that are non-empty regular
 # files (test -f / -s: a stat, never an open or a read, so pipes and devices are skipped). Links are not followed into
 # risky places: the file itself must not be a link, and a directory link on the way must not point to a network or
 # device path (checked with lstat and readlink before anything goes through it). awk comes from the standard PATH
 # (command -p), not from directories a project may add. Errors are dropped and it always exits 0.
-case "${SHUUT_SAVE_REMINDER:-}" in
-0 | off | OFF | false | no) cat >/dev/null 2>&1; exit 0 ;;
-esac
+for v in "${SHUUT_SAVE_REMINDER:-}" "${SHUUT_AUTOSAVE:-}"; do
+	case $v in
+	0 | [Oo][Ff][Ff] | [Ff][Aa][Ll][Ss][Ee] | [Nn][Oo]) cat >/dev/null 2>&1; exit 0 ;;
+	esac
+done
 h=${0%/*}
 t=$(printf '\t')
 

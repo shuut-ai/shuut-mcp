@@ -3,9 +3,10 @@
 # Windows PowerShell 5.1 and PowerShell 7. Same rules as save-to-shuut.awk, with PowerShell quoting.
 #
 # stdin:  the PostToolUse hook event as JSON (Claude Code PowerShell tool, Codex on Windows).
-# stdout: nothing, or one JSON object whose hookSpecificOutput.additionalContext asks the agent to save the video
-#         with the shuut editor_save tool.
-# $args[0] (optional): look at this tool only. SHUUT_SAVE_REMINDER=off turns the hook off.
+# stdout: nothing, or one JSON object whose hookSpecificOutput.additionalContext tells the agent about the user's
+#         shuut auto-save setting and how to save the video with the shuut editor_save tool.
+# $args[0] (optional): look at this tool only. SHUUT_SAVE_REMINDER=off or SHUUT_AUTOSAVE=off (the same: 0, off, false
+# or no, in any case) turns the note off on this computer; the shuut account's auto-save setting does not change.
 # It reads the event JSON and, to skip failed renders, asks the file system whether a named output file is a
 # non-empty regular file (Get-Item: attributes only, never opens or reads it). Paths that could reach the network or
 # a device (\\host, //host, \\?\, /dev, /proc, ...) are dropped before that. It sends nothing anywhere, writes no files
@@ -15,7 +16,7 @@ $Only = ''
 if ($args.Count -gt 0) { $Only = ([string]$args[0]).ToLowerInvariant() }
 $Tools = @('ffmpeg remotion handbrakecli mkvmerge mp4box melt'.Split(' ') | Where-Object { -not $Only -or $_ -eq $Only })
 $NoteHead = 'shuut: this command made a video file ('
-$NoteTail = '). If shuut MCP tools are available (maybe after a tool search) and the user''s own instructions turned on shuut auto-save, save it as an editable shuut project with editor_save (free: no credits, not counted in the project limit; fair use 300 new projects a day) without asking; otherwise offer it once per chat, not again after a no (/shuut:autosave). Only final videos: not files a later command reads, previews, candidates, or if the user said no. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference (editor-save skill). Always key: the output file path, plus the project_id you got; new: true only if asked.'
+$NoteTail = '). If shuut MCP tools are available (maybe after a tool search): auto-save is the user''s shuut account setting (on unless off at shuut.ai/mcp): after handing over the final video, save it as an editable shuut project with editor_save (free); on autosave_off ask once, yes: user_requested true; not if the user said not to. Final videos only, not previews. Upload with media_upload: sources as media, the commands you ran as ffmpeg (or your edit as spec), the final render as reference. Always key: the output file path, plus the project_id you got; new: true only if asked. Team or brand work: space team, folder = the matching editor_folders name as listed. End: where it went, open_url.'
 $NoteBg = 'It is still running in the background: save the video after it finishes.'
 $Flags = @{}
 foreach ($f in 'y n an vn sn dn shortest hide_banner nostdin stdin stats nostats re copyts start_at_zero xerror benchmark benchmark_all autorotate noautorotate accurate_seek noaccurate_seek ignore_unknown copy_unknown dump hex report h help version formats codecs encoders decoders filters pix_fmts layouts sample_fmts colors bsfs protocols devices muxers demuxers hwaccels buildconf L debug_ts bitexact psnr vstats qphist print_graphs'.Split(' ')) { $Flags['-' + $f] = $true }
@@ -327,7 +328,7 @@ try {
   $ErrorActionPreference = 'Stop'
   $ms = New-Object System.IO.MemoryStream
   [Console]::OpenStandardInput().CopyTo($ms)
-  if ("$env:SHUUT_SAVE_REMINDER" -match '^(0|off|false|no)$') { exit 0 }
+  foreach ($v in "$env:SHUUT_SAVE_REMINDER", "$env:SHUUT_AUTOSAVE") { if ($v -imatch '^(0|off|false|no)\z') { exit 0 } }
   $utf8 = New-Object System.Text.UTF8Encoding $false
   $raw = $utf8.GetString($ms.ToArray())
   # cheap gate: no tool name anywhere in the input, nothing to do (most shell commands end here)
