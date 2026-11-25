@@ -13,12 +13,12 @@ description: Edit an existing image with shuut - fill or erase a masked area, cu
    - `product_shot_create`: put a product photo into a new advertising scene (see the product-ad skill).
    - `resize_image`: recompose an image into another aspect ratio with an image model (to extend the photo outward instead, use `image_edit` operation expand).
 3. `get_preset_instructions` with preset edit-<operation> (for example edit-relight) returns that operation's options and an example.
-4. Call the tool with `dry_run: true` for the price, then for real, then `jobs_wait` until done.
+4. Call the tool (it charges at once; `dry_run: true` first only when the user asks for the price, see the price-check skill), then `jobs_wait` until done.
 
 Example arguments for `image_edit`:
 
 ```json
-{ "operation": "expand", "image": "<image_file_id>", "options": { "ratio": "16:9", "place": "center" }, "idempotency_key": "expand-1", "dry_run": true }
+{ "operation": "expand", "image": "<image_file_id>", "options": { "ratio": "16:9", "place": "center" }, "idempotency_key": "expand-1" }
 ```
 
 ## Layers
@@ -28,10 +28,10 @@ With operation layers, results include each layer's file_id, signed URL, placeme
 After the layers job is done:
 
 - `layers_edit` renames, moves, resizes, rotates, fades, hides, locks or deletes layers and adds the user's images as new layers (free; pass the current `revision` — if it changed, nothing is saved).
-- `layer_redraw` splits one layer into child layers or redraws it from a prompt (paid: `dry_run` first, then `jobs_wait`).
+- `layer_redraw` splits one layer into child layers or redraws it from a prompt (paid; then `jobs_wait`).
 - For a shots sheet, `edit_shots_split` cuts the 3x3 sheet into one image per shot (free).
 
 ## When it fails
 
 - Skin retouch and try-on use a real person's photo: pass `consent: true` only after the user confirms in this conversation that the person gave permission. Do not use photos of minors without their legal guardian's permission, or of public figures without their permission (usage policy).
-- A failed job is refunded in full, except error.code outcome_unknown (see the price-first skill).
+- A failed job is refunded in full, except error.code outcome_unknown (see the price-check skill).

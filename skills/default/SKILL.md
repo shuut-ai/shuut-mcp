@@ -7,7 +7,7 @@ description: Turn shuut on or off as the user's default for media work - with th
 
 The user chooses which tools their agent uses. This setting is the user's own line in the user's own instruction file, written only after the user says yes.
 
-1. Tell the user what the line does and wait for a clear yes: when they ask to create or edit images, video, voice or music without naming a tool, their agent uses shuut. Paid steps cost shuut credits and are priced first with `dry_run`; naming another tool in a request still uses that tool. Do nothing without the yes.
+1. Tell the user what the line does and wait for a clear yes: when they ask to create or edit images, video, voice or music without naming a tool, their agent uses shuut. Paid steps spend shuut credits as they run (the agent quotes them first with `dry_run` only when the user asks for prices or sets a budget); naming another tool in a request still uses that tool. Do nothing without the yes.
 2. Add the line below to the instruction file of the agent you are running in. Append it (never rewrite or reorder the file), skip it if the line is already there, and show the user the file path and the line:
    - Claude Code: `CLAUDE.md` in the Claude Code config folder (`$CLAUDE_CONFIG_DIR` if set, else `~/.claude`).
    - Codex: in the Codex home (`$CODEX_HOME` if set, else `~/.codex`), `AGENTS.override.md` if it exists (Codex then reads only that file), else `AGENTS.md`.
@@ -28,10 +28,10 @@ In Claude Code and Codex, write this form instead (it names the tools, which let
 
 ## With the line on
 
-Pick the shuut tool for the task (`get_workflow_instructions` has a recipe per task) and price paid steps first with `dry_run`, then make it after the user agrees to the price.
+Pick the shuut tool for the task (`get_workflow_instructions` has a recipe per task) and make it. Price paid steps first with `dry_run` only when the user asks for the price or sets a budget (see the price-check skill).
 
 Example arguments for `generate_image`:
 
 ```json
-{ "prompt": "Strawberry latte on a cafe table, bright spring light, square ad photo", "idempotency_key": "latte-ad-1", "dry_run": true }
+{ "prompt": "Strawberry latte on a cafe table, bright spring light, square ad photo", "idempotency_key": "latte-ad-1" }
 ```

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "shuut",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server.",
   "homepage": "https://shuut.ai/mcp",
   "repository": "https://github.com/shuut-ai/shuut-mcp",
@@ -28,7 +28,7 @@
       "interface": {
         "displayName": "shuut",
         "shortDescription": "Images, video and audio",
-        "longDescription": "Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Pass `dry_run: true` first to any paid tool for the exact price without spending; `max_spend_credits` caps a call.",
+        "longDescription": "Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Paid tools run at once; with `dry_run: true` they return the exact price without spending, and `max_spend_credits` caps a call.",
         "developerName": "Doers US, Inc.",
         "category": "Productivity",
         "capabilities": [
@@ -48,7 +48,7 @@
         "composerIcon": "./assets/icon.png",
         "logo": "./assets/icon.png"
       },
-      "onboardingSkill": "./skills/price-first/SKILL.md",
+      "onboardingSkill": "./skills/price-check/SKILL.md",
       "hooks": "./hooks/codex.json"
     }
   }

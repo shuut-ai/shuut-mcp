@@ -1,7 +1,7 @@
 {
   "name": "shuut",
   "displayName": "shuut",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Make and edit images, videos and audio with shuut from your agent: step-by-step skills plus the shuut MCP server.",
   "homepage": "https://shuut.ai/mcp",
   "repository": "https://github.com/shuut-ai/shuut-mcp",

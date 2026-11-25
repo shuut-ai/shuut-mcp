@@ -16,8 +16,8 @@ description: Edit an existing video with shuut - swap people, outfits, objects o
    - `generate_audio` with `video`: add sound effects (mode sfx) or music (mode music) made for that video.
    - `avatar_video_create` mode lipsync: re-sync the mouth to a new audio file.
    - `generate_video` with `extend_video`: make it longer.
-3. Call it with `dry_run: true` to see the price and any input-limit error (length, size, resolution) before spending. Edit tools that quote started seconds show an upper bound and refund the difference after the job.
-4. Call it for real, then `jobs_wait` until done.
+3. Only when the user asks for the price first or sets a budget: call it with `dry_run: true` (see the price-check skill). Edit tools that quote started seconds show an upper bound and refund the difference after the job.
+4. Call it for real (it charges at once; inputs over a limit such as length, size or resolution are refused before anything is charged), then `jobs_wait` until done.
 
 To cut, join, add captions, a logo, transitions or a blurred background, or cover burned-in text, use `editor_save` instead (free, no `dry_run`, saved at once): it makes a project the user can keep editing, and saving the same video again (same `key` = output path, and its `project_id`) updates that project instead of adding one. `editor_export` renders the MP4 (or WebM, GIF, M4A, WAV) and returns a `task_id` to wait on with `editor_task_wait` (not `jobs_wait`) (see the editor-save skill).
 
@@ -26,7 +26,7 @@ Call `swap_find_people` first; once it returned the person p1:
 Example arguments for `swap_video_create`:
 
 ```json
-{ "mode": "object", "video": "<video_file_id>", "photos": ["<person_photo_file_id>"], "targets": [{ "person": "p1", "photo": 0, "change": "person" }], "idempotency_key": "swap-1", "dry_run": true }
+{ "mode": "object", "video": "<video_file_id>", "photos": ["<person_photo_file_id>"], "targets": [{ "person": "p1", "photo": 0, "change": "person" }], "idempotency_key": "swap-1" }
 ```
 
 ## When it fails
@@ -34,4 +34,4 @@ Example arguments for `swap_video_create`:
 - invalid_input before charging usually names the limit (length, size, frame size, HDR): tell the user the limit instead of guessing.
 - swap_analysis_missing: call `swap_find_people` with the video again. swap_invalid: read `problem` (a target without a photo, an unused photo, an unknown person or animal id …).
 - A video or photo showing a real person needs the person's permission; pass `consent: true` only after the user confirms (see the upload skill).
-- A failed job is refunded in full, except error.code outcome_unknown (see the price-first skill).
+- A failed job is refunded in full, except error.code outcome_unknown (see the price-check skill).

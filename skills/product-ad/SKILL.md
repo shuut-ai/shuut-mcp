@@ -5,7 +5,7 @@ description: Turn a product photo into ad creative with shuut - clean cut-outs, 
 
 # Product photo to ad
 
-1. Get a `file_id` for the product photo (see the upload skill; uploading needs the account owner's one-time media upload notice accepted in a browser, otherwise it fails with media_consent_required and you cannot accept it for them) or pick one from `products_list`. `brand_kits_list` returns the user's saved colors, tone and logo `file_id`.
+1. Get a `file_id` for the product photo (see the upload skill) or pick one from `products_list`. `brand_kits_list` returns the user's saved colors, tone and logo `file_id`.
    - To save the product for later, call `product_save`; product tools then take its id as `product_id`.
    - For a brand kit, `brand_kit_extract` drafts the fields from the brand's public site (nothing is saved — review with the user), then `brand_kit_save`; `ad_create` takes its id as `brand_kit_id`.
 2. Make the visual:
@@ -14,12 +14,12 @@ description: Turn a product photo into ad creative with shuut - clean cut-outs, 
    - `ad_create` for a finished ad image with headline, short copy and CTA rendered in it (optionally with a `logo`). `plan_write` with kind ad_concepts drafts headline, copy, CTA and layout per angle for free.
 3. Optional: `copy_write` drafts hooks and body copy (Korean unless you pass `language`); `claims_check` screens copy for risky claims under Korean advertising rules (reference only, not legal advice); `translate_text` localizes it.
 4. To animate the result, pass the output `file_id` as `first_frame` to `generate_video` (see the make-video skill).
-5. Every paid step: `dry_run: true` first, then for real, then `jobs_wait`.
+5. Every paid step charges when called; wait for it with `jobs_wait`. Price a step first with `dry_run: true` only when the user asks for the price or sets a budget (see the price-check skill).
 
 Example arguments for `ad_create`:
 
 ```json
-{ "product": "<product_file_id>", "headline": "Light every day", "body": "Absorbs fast with no sticky feel.", "cta": "Shop now", "ratio": "1:1", "idempotency_key": "ad-1", "dry_run": true }
+{ "product": "<product_file_id>", "headline": "Light every day", "body": "Absorbs fast with no sticky feel.", "cta": "Shop now", "ratio": "1:1", "idempotency_key": "ad-1" }
 ```
 
 ## Keep it honest
