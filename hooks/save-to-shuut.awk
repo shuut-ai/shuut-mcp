@@ -3,11 +3,14 @@
 #
 # Two passes, both run by save-to-shuut.sh with LC_ALL=C (byte strings):
 #   1. (default) stdin: the PostToolUse hook event as JSON (Claude Code, Codex). stdout: the video files the command
-#      wrote, one per line: "B" (the command runs in the background), "C<path to check><TAB><name>" or "U<TAB><name>"
-#      (cannot be checked: variables, globs, relative path after cd). This pass never opens, reads or stats a file: it
-#      has no getline, no redirection and no pipes. Paths that could reach the network or a device (//host, \\host,
-#      /inet, /dev, /proc, /sys, /net, /Network, /afs) are dropped here, before anything touches the file system.
-#   2. (-v mode=emit) stdin: "B" and "N<name>" lines (the files the sh pass found with test -f / -s, which only stat).
+#      wrote, one per line: "W<seconds>" first (how recent a file's modification time must be to count as written by
+#      this command, see the END block), then "B" (the command runs in the background), "C<path to check><TAB><name>"
+#      or "U<TAB><name>" (cannot be checked: variables, globs, relative path after cd). This pass never opens, reads or
+#      stats a file: it has no getline, no redirection and no pipes. Paths that could reach the network or a device
+#      (//host, \\host, /inet, /dev, /proc, /sys, /net, /Network, /afs) are dropped here, before anything touches the
+#      file system.
+#   2. (-v mode=emit) stdin: "B" and "N<name>" lines (the files the sh pass found with test -f / -s and a stat of the
+#      modification time, which only stat).
 #      stdout: nothing, or one JSON object whose hookSpecificOutput.additionalContext tells the agent about the user's
 #      shuut auto-save setting and how to save the video with the shuut editor_save tool.
 # -v only=<tool>: look at that tool only (Claude Code runs one handler per tool, so each note is added once).
@@ -26,7 +29,12 @@ BEGIN {
 	for (i = 1; i <= n; i++) VMUX[tl[i]] = 1
 	n = split("mp4 mov webm mkv", tl, " ")
 	for (i = 1; i <= n; i++) VEXT[tl[i]] = 1
-	NFAIL = split("Conversion failed!|Error opening output|Error opening input|Error while opening encoder|Error initializing output stream|Unknown encoder|Unrecognized option|Invalid data found when processing input|Error splitting the argument list|At least one output file must be specified|No such file or directory", FAIL, "|")
+	# ffmpeg's fatal messages (it prints them as it gives up, so they sit at the end of the output). Only messages that
+	# end a run: per-frame warnings that a finished render also prints (deprecated pixel format, "Past duration too
+	# large", "non monotonically increasing dts", "Application provided invalid, non monotonically ...") stay out, so a
+	# real render is not missed. "Invalid argument" and "Permission denied" are the errno text of a failed open, filter
+	# or write; "Error reinitializing filters" ends a run when the input size changes midway.
+	NFAIL = split("Conversion failed!|Error opening output|Error opening input|Error while opening encoder|Error initializing output stream|Unknown encoder|Unrecognized option|Invalid data found when processing input|Error splitting the argument list|At least one output file must be specified|No such file or directory|Error initializing complex filters|Error initializing filter|Error reinitializing filters|No such filter|Invalid argument|Permission denied|No space left on device|Could not write header|Error writing trailer", FAIL, "|")
 	# words that run the next word as the command (with their options), so the tool can come after them
 	n = split("nice ionice sudo doas env time timeout nohup stdbuf command exec xargs caffeinate npx bunx pnpm yarn npm bun dlx", tl, " ")
 	for (i = 1; i <= n; i++) WRAP[tl[i]] = 1
@@ -86,6 +94,17 @@ END {
 	# an output a later command of the same call reads with -i is an intermediate file, not the video to save
 	for (i = 1; i <= NO; i++) { nm = OUTL[i]; sub(/^[^\t]*\t/, "", nm); if (!(nrm(nm) in READ)) NK++ }
 	if (NK == 0) exit 0
+	# W: a checked file counts only if its modification time is at most this many seconds before now (the sh pass
+	# compares it with a stat, never opening the file), so an old out.mp4 left by an earlier run is not reported after
+	# a render that failed without one of the messages above. ffmpeg (and the other tools) rewrite the header or write
+	# the trailer as they finish, so a fresh output's modification time is about the end of the command.
+	# Claude Code gives the command's run time (duration_ms): the whole call plus 15 s for the hook to start and for
+	# whole-second clocks, so a file written early in a long call still counts. Codex gives no run time and runs the
+	# hook in the background (async): a fixed 300 s covers that delay and later steps of the same call (the end of the
+	# render is what counts, not its start). Capped so the number stays an integer in every awk.
+	if (DUR ~ /^[0-9]+(\.[0-9]*)?$/) { WIN = int(DUR / 1000); if (WIN * 1000 < DUR) WIN++; WIN += 15 } else WIN = 300
+	if (WIN > 100000000) WIN = 100000000
+	printf "W%d\n", WIN
 	if (BG) print "B"
 	for (i = 1; i <= NO; i++) { nm = OUTL[i]; sub(/^[^\t]*\t/, "", nm); if (!(nrm(nm) in READ)) print OUTL[i] }
 	exit 0
@@ -187,6 +206,7 @@ function pval(path, depth,   t, k) {
 	} else if (t == "l") {
 		if (path == ".tool_input.run_in_background") BG = (TV[TPI] == "true")
 		else if (path == ".tool_response.interrupted") INTR = (TV[TPI] == "true")
+		else if (path == ".duration_ms") DUR = TV[TPI]
 		TPI++
 	} else BAD = 1
 	if (path == ".tool_response") RB = TPI

@@ -8,9 +8,9 @@
 # $args[0] (optional): look at this tool only. SHUUT_SAVE_REMINDER=off or SHUUT_AUTOSAVE=off (the same: 0, off, false
 # or no, in any case) turns the note off on this computer; the shuut account's auto-save setting does not change.
 # It reads the event JSON and, to skip failed renders, asks the file system whether a named output file is a
-# non-empty regular file (Get-Item: attributes only, never opens or reads it). Paths that could reach the network or
-# a device (\\host, //host, \\?\, /dev, /proc, ...) are dropped before that. It sends nothing anywhere, writes no files
-# and always exits 0.
+# non-empty regular file modified during this command (Get-Item: attributes and LastWriteTimeUtc only, never opens or
+# reads it). Paths that could reach the network or a device (\\host, //host, \\?\, /dev, /proc, ...) are dropped
+# before that. It sends nothing anywhere, writes no files and always exits 0.
 
 $Only = ''
 if ($args.Count -gt 0) { $Only = ([string]$args[0]).ToLowerInvariant() }
@@ -22,7 +22,8 @@ $Flags = @{}
 foreach ($f in 'y n an vn sn dn shortest hide_banner nostdin stdin stats nostats re copyts start_at_zero xerror benchmark benchmark_all autorotate noautorotate accurate_seek noaccurate_seek ignore_unknown copy_unknown dump hex report h help version formats codecs encoders decoders filters pix_fmts layouts sample_fmts colors bsfs protocols devices muxers demuxers hwaccels buildconf L debug_ts bitexact psnr vstats qphist print_graphs'.Split(' ')) { $Flags['-' + $f] = $true }
 $VMux = @('mp4', 'mov', 'webm', 'matroska')
 $VExt = @('mp4', 'mov', 'webm', 'mkv')
-$Fails = @('Conversion failed!', 'Error opening output', 'Error opening input', 'Error while opening encoder', 'Error initializing output stream', 'Unknown encoder', 'Unrecognized option', 'Invalid data found when processing input', 'Error splitting the argument list', 'At least one output file must be specified', 'No such file or directory')
+# ffmpeg's fatal messages; the same list as save-to-shuut.awk (see the reasons there)
+$Fails = @('Conversion failed!', 'Error opening output', 'Error opening input', 'Error while opening encoder', 'Error initializing output stream', 'Unknown encoder', 'Unrecognized option', 'Invalid data found when processing input', 'Error splitting the argument list', 'At least one output file must be specified', 'No such file or directory', 'Error initializing complex filters', 'Error initializing filter', 'Error reinitializing filters', 'No such filter', 'Invalid argument', 'Permission denied', 'No space left on device', 'Could not write header', 'Error writing trailer')
 
 function Test-Video([string]$w) {
   $m = [regex]::Match($w, '\.([A-Za-z0-9]+)$')
@@ -302,8 +303,9 @@ function Test-RiskyLink([string]$q) {
   return $false
 }
 
-# true = a non-empty regular file, or we cannot tell (variables, globs, %d patterns, relative path after cd);
-# false = missing, empty, not a regular file, a link, or a path that could reach the network or a device
+# true = a non-empty regular file modified at most $script:Win seconds ago, or we cannot tell (variables, globs, %d
+# patterns, relative path after cd); false = missing, empty, old (left by an earlier run), not a regular file, a link,
+# or a path that could reach the network or a device
 function Test-Exists([string]$p, [bool]$plain) {
   if (-not $plain -or $p.Contains('%')) { return $true }
   try {
@@ -320,7 +322,7 @@ function Test-Exists([string]$p, [bool]$plain) {
     if (Test-RiskyLink $q) { return $false }
     $f = Get-Item -LiteralPath $q -Force -ErrorAction Stop
     if ($f.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return $false }
-    return ($f -is [System.IO.FileInfo] -and $f.Length -gt 0)
+    return ($f -is [System.IO.FileInfo] -and $f.Length -gt 0 -and $f.LastWriteTimeUtc -ge [DateTime]::UtcNow.AddSeconds(-$script:Win))
   } catch { return $false }
 }
 
@@ -339,6 +341,11 @@ try {
   $resp = $ev.tool_response
   if ($resp -isnot [string] -and $resp -and $resp.interrupted -eq $true) { exit 0 }
   $script:Cwd = [string]$ev.cwd
+  # how recent an output file must be to count as written by this command (the awk "W" line, same reasons): Claude
+  # Code's duration_ms rounded up to seconds + 15, else (Codex, background hook) 300 seconds
+  $script:Win = 300
+  $d = $ev.duration_ms
+  if (($d -is [int] -or $d -is [long] -or $d -is [double] -or $d -is [decimal]) -and $d -ge 0) { $script:Win = [Math]::Min([Math]::Ceiling([double]$d / 1000) + 15, 100000000) }
   $script:Cd = $false
   $script:Seen = @{}
   $script:Wrote = @{}

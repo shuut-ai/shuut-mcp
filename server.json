@@ -3,7 +3,7 @@
   "name": "ai.shuut/shuut",
   "title": "shuut",
   "description": "Image, video, voice, music and caption generation and editing with GPT Image, Seedance, Kling, Veo",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "websiteUrl": "https://shuut.ai/mcp",
   "icons": [
     {
