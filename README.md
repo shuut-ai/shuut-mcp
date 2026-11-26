@@ -116,7 +116,7 @@ gemini mcp add --transport http --scope user shuut https://shuut.ai/mcp
   tool_input_schema_max_bytes = 8000
   ```
 
-**VS Code and Cursor**: shuut has up to 82 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
+**VS Code and Cursor**: shuut has up to 81 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
 
 ## Make shuut your default (optional)
 
@@ -161,7 +161,7 @@ Ask your agent, for example:
 
 > Make a 30-second vertical promo for my app with shuut only: write the script, read it in my cloned voice, add a stock presenter, three generated scenes and my screen recording demo.mov, background music, big captions and my logo, then give me the editable project and the MP4. Show me the total price first.
 
-The agent follows the `promo-video` skill: `media_upload` for local files, `generate_audio` (voice, music, sound effects) or `voice_clone_phrase` + `voice_clone_create` (your own voice, with your consent), `avatar_video_create`, `generate_video` / `generate_image`, then `editor_save` (cuts, transitions, captions, logo, blurred background) and `editor_export` for the MP4. Paid steps charge your credits as they run; because this request asks for the total first, the agent prices them with `dry_run` and waits for your OK (without that, it makes them right away). Editing, saving and exporting are free. A video the agent edited with ffmpeg or another tool is saved with `editor_save` too (auto-save is on by default; `/shuut:autosave` turns it off), so you can keep editing it in the shuut editor; making the same video again updates that project instead of adding a new one.
+The agent follows the `promo-video` skill: `media_upload` for local files, `generate_audio` (voice, music, sound effects) or `voice_clone_create` (your own voice, with your consent), `avatar_video_create`, `generate_video` / `generate_image`, then `editor_save` (cuts, transitions, captions, logo, blurred background) and `editor_export` for the MP4. Paid steps charge your credits as they run; because this request asks for the total first, the agent prices them with `dry_run` and waits for your OK (without that, it makes them right away). Editing, saving and exporting are free. A video the agent edited with ffmpeg or another tool is saved with `editor_save` too (auto-save is on by default; `/shuut:autosave` turns it off), so you can keep editing it in the shuut editor; making the same video again updates that project instead of adding a new one.
 
 ## Skills
 
