@@ -7,7 +7,7 @@ description: Turn a script or a one-line idea into a vertical short-drama series
 
 There is no single server tool for this: you plan the series yourself, then make the pictures and clips with the regular paid tools. The shuut app's Short Drama Studio does the same steps with a free analysis and storyboard.
 
-1. Read the script (or the idea) and split it into episodes in story order. For each episode write a title, the hook of its first 3 seconds and the cliffhanger it ends on. List the recurring characters (name, apparent age, look, outfit, voice) and the places. Keep names the script gives; never use a real person's or a celebrity's name or likeness, and for photorealistic series make every character an adult.
+1. Read the script (or the idea) and split it into episodes in story order. For each episode write a title, the hook of its first 3 seconds and the cliffhanger it ends on. List the recurring characters (name, apparent age, look, outfit, voice) and the places. Keep names the script gives.
 2. Break each episode into clips of 4 to 15 seconds: one place per clip, one to four shots, and the lines spoken in it. Keep each line short enough to say in its shot (about 6 Korean syllables or 2.5 English words per second). Avoid readable screens, signs, clocks and crowds — video models break on them.
 3. Show the user the plan (episodes, characters, clips). The create tools charge as they run; only when the user asks for the price first or sets a budget, call each one with `dry_run: true` first (see the price-check skill), add up `cost_credits`, and wait for their approval.
 4. Make one character sheet per recurring character with `story_scene_create`: the scene asks for the same person shown full body from the front, the side and the back plus a face close-up on a plain grey background with no text; the setting carries the look and the art style. Call `jobs_wait` until `done` is true and keep each output `file_id`.
@@ -30,5 +30,5 @@ Example arguments for `generate_video`:
 ## When it fails
 
 - A failed or cancelled job is refunded in full, except error.code outcome_unknown: check the same job_id later with `jobs_get` and do not submit a replacement (see the price-check skill).
-- Seedance and Omni may refuse reference images that show a real-looking face; use Kling 4.0 for photorealistic characters, or a drawn or 3D art style.
-- A photo of a real person needs that person's permission; see the upload skill for `consent`. Do not use photos of children or of public figures.
+- A model may refuse reference images that show a real-looking face; that job is refunded — try another model or a drawn or 3D art style.
+- A photo of a real person needs that person's permission; see the upload skill for `consent`. A child's photo needs permission from a parent or guardian, and a public figure's photo needs permission from them.

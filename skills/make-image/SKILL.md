@@ -21,5 +21,5 @@ For several prompts at once, use `generate_image_batch` (see the batch skill). F
 ## When it fails
 
 - A failed job is refunded in full; read `error.code` and `error.message` from `jobs_get` before changing the prompt.
-- content_blocked or a refused person photo: explain the reason to the user; do not retry the same input with another model to get around it.
+- content_blocked or a refused person photo: the model refused it and the job is refunded; tell the user the reason. Another model may accept it: try one only if the user wants to.
 - To edit the result, pass the output `file_id` to `image_edit` (see the edit-photo skill).
