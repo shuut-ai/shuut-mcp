@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "shuut": {
+      "type": "http",
+      "url": "https://shuut.ai/mcp"
+    }
+  }
+}
