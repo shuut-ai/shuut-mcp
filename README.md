@@ -44,6 +44,8 @@ claude plugin install shuut@shuut-mcp
 
 Or inside Claude Code: `/plugin marketplace add shuut-ai/shuut-mcp` then `/plugin install shuut@shuut-mcp`. Skills run as `/shuut:<skill>`. Claude Code updates plugins from a marketplace you add only after you turn on its auto-update once: run `/plugin` in Claude Code's terminal UI, open **Marketplaces** → **shuut-mcp** and choose **Enable auto-update**, or ask Claude to keep shuut up to date (`/shuut:auto-update`).
 
+Sign in once: run `/mcp` in Claude Code and authenticate `plugin:shuut:shuut`, or run `claude mcp login plugin:shuut:shuut` in a terminal (the plugin registers the server under that name).
+
 ### GitHub Copilot CLI
 
 ```sh
@@ -72,7 +74,12 @@ Restart Gemini CLI and run `/mcp auth shuut` to sign in. The extension adds the 
 
 ### Codex and ChatGPT desktop
 
-`codex plugin marketplace add shuut-ai/shuut-mcp`, then install **shuut** from the Plugins Directory.
+```sh
+codex plugin marketplace add shuut-ai/shuut-mcp
+codex plugin add shuut@shuut-mcp
+```
+
+Or install **shuut** from the Plugins Directory in Codex or the ChatGPT desktop app after adding the marketplace. Sign in with `codex mcp login shuut` if Codex does not ask.
 
 ### OpenCode and other agents
 
