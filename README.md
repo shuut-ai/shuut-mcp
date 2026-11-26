@@ -14,6 +14,10 @@
 
 Image generation, video generation and image/video editing with GPT Image, Nano Banana, Seedream image generation, Seedance video generation, Kling and Veo: product shots, ads and avatars. Also voice, music and captions. Billed to your shuut credits. 1 credit = 1 US cent, same prices as the shuut app. Paid tools run at once; with `dry_run: true` they return the exact price without spending, and `max_spend_credits` caps a call.
 
+**Reverse Video**: hand it one video (a file, or a TikTok, Instagram, YouTube or X link) and get it back as an editable shuut project. Change the layers, the text, the colors. Free to run, with a daily limit.
+
+> Rebuild this video as an editable project: `<link>`
+
 - **Server**: `https://shuut.ai/mcp` (Streamable HTTP, OAuth sign-in with your shuut account — no API key)
 - **Billing**: credits come from one-time credit packs or a monthly plan (Starter, Plus or Ultra); each plan includes a monthly credit balance. Current prices are on shuut.ai
 - **Skills**: 15 step-by-step workflows (`skills/`), also served by the server itself
