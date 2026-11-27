@@ -123,7 +123,7 @@ gemini mcp add --transport http --scope user shuut https://shuut.ai/mcp
   tool_input_schema_max_bytes = 8000
   ```
 
-**VS Code and Cursor**: shuut has up to 81 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
+**VS Code and Cursor**: shuut has up to 82 tools. If the app says a request has too many tools (VS Code allows 128 per request), turn off the shuut tools you do not use in its tool picker (VS Code: Configure Tools).
 
 ## Make shuut your default (optional)
 
